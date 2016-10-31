@@ -45,7 +45,7 @@ if(${CMAKE_SYSTEM_NAME} MATCHES "Linux")
 #fix all opengl libs
 set(OPENGL_LIBRARY
   ${OPENGL_LIBRARY}
-  -lGL -lGLU -lXrandr -lXext -lX11 -lrt -lXxf86vm
+  -lGL -lXrandr -lXext -lX11 -lrt -lXxf86vm
   ${CMAKE_DL_LIBS}
 )
 #add unix macros
@@ -61,25 +61,27 @@ set(ext_includes
 	${GLM_INCLUDE_DIR}
 	${GLFW_INCLUDE_DIR}
 	${GLEW_INCLUDE_DIR}
+  ${NANOGUI_INCLUDE_DIR}
 )
+
 
 include_directories(
 	${ext_includes}
 	${PROJECT_INCLUDE_DIR}
 )
 
-message(${ext_includes})
-
 set(EXT_DEPS
 	glm
 	GLFW
 	GLEW
+  nanoGUI
 )
 
 set(ALL_LIBS
 	${OPENGL_LIBRARY}
 	${GLFW_LIBRARIES}
 	${GLEW_LIBRARIES}
+  ${NANOGUI_LIBRARIES}
 )
 
 add_subdirectory(${PROJECT_CXX_DIR})
