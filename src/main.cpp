@@ -21,7 +21,7 @@ using namespace nanogui;
 
 Screen* createGui(GLFWwindow* window) {
   // Create a nanogui screen and pass the glfw pointer to initialize
-  screen = new Screen();
+  Screen *screen = new Screen();
   screen->initialize(window, true);
   bool enabled = true;
 
