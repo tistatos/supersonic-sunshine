@@ -4,6 +4,7 @@
 * @date 31-10-2016
 */
 
+//External libraries
 #include <GL/glew.h>
 
 #ifdef __APPLE__
@@ -12,89 +13,17 @@
 #include <GL/gl.h>
 #endif
 #include <GLFW/glfw3.h>
-
-
 #include <nanogui/nanogui.h>
+
+//stl 
 #include <iostream>
 
-using namespace nanogui;
+//local
+#include "SupersonicGui.h"
 
-Screen* createGui(GLFWwindow* window) {
-  // Create a nanogui screen and pass the glfw pointer to initialize
-  Screen *screen = new Screen();
-  screen->initialize(window, true);
-  bool enabled = true;
 
-  bool bvar = true;
-  int ivar = 12345678;
-  double dvar = 3.1415926;
-  float fvar = (float)dvar;
-  std::string strval = "A string";
-  Color colval(0.5f, 0.5f, 0.7f, 1.f);
-
-  FormHelper *gui = new FormHelper(screen);
-  ref<Window> nanoguiWindow = gui->addWindow(Eigen::Vector2i(10, 10), "Form helper example");
-  gui->addGroup("Basic types");
-  gui->addVariable("bool", bvar)->setTooltip("Test tooltip.");
-  gui->addVariable("string", strval);
-
-  gui->addGroup("Validating fields");
-  gui->addVariable("int", ivar)->setSpinnable(true);
-  gui->addVariable("float", fvar)->setTooltip("Test.");
-  gui->addVariable("double", dvar)->setSpinnable(true);
-
-  gui->addGroup("Complex types");
-  //gui->addVariable("Enumeration", enumval, enabled)->setItems({ "Item 1", "Item 2", "Item 3" });
-  gui->addVariable("Color", colval);
-
-  gui->addGroup("Other widgets");
-  gui->addButton("A button", []() { std::cout << "Button pressed." << std::endl; })->setTooltip("Testing a much longer tooltip, that will wrap around to new lines multiple times.");;
-
-  screen->setVisible(true);
-  screen->performLayout();
-  nanoguiWindow->center();
-
-  /** Callback lambda functions **/
-  //glfwSetCursorPosCallback(window, [](GLFWwindow *, double x, double y) {
-    //screen->cursorPosCallbackEvent(x, y);
-  //});
-
-  //glfwSetMouseButtonCallback(window, [](GLFWwindow *, int button, int action, int modifiers) {
-    //screen->mouseButtonCallbackEvent(button, action, modifiers);
-  //});
-
-  //glfwSetKeyCallback(window, [](GLFWwindow *, int key, int scancode, int action, int mods) {
-    //screen->keyCallbackEvent(key, scancode, action, mods);
-  //});
-
-  //glfwSetCharCallback(window, [](GLFWwindow *, unsigned int codepoint) {
-    //screen->charCallbackEvent(codepoint);
-  //});
-
-  //glfwSetDropCallback(window, [](GLFWwindow *, int count, const char **filenames) {
-    //screen->dropCallbackEvent(count, filenames);
-  //});
-
-  //glfwSetScrollCallback(window, [](GLFWwindow *, double x, double y) {
-    //screen->scrollCallbackEvent(x, y);
-  //});
-
-  //glfwSetFramebufferSizeCallback(window, [](GLFWwindow *, int width, int height) {
-    //screen->resizeCallbackEvent(width, height);
-  //});
-
-  return screen;
-}
-
-void errorcb(int code, const char* msg){
-	std::cout << "code: " << code << " msg: " << msg ;
-}
-
-int main(int argc, char *argv[]) {
-
-	if(!glfwInit())
-		false;
-
+/* Inits a GLFW Window with OpenGL 3.3. Make sure glfwInit has been called */
+GLFWwindow* createWindow(){
   GLFWmonitor* mMonitor = glfwGetPrimaryMonitor();
   const GLFWvidmode* vidmode = glfwGetVideoMode(mMonitor);
 
@@ -103,38 +32,67 @@ int main(int argc, char *argv[]) {
   glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
   glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
-	glfwSetErrorCallback(errorcb);
+	glfwSetErrorCallback([](int code, const char* msg){std::cout << "code: " << code << " msg: " << msg;});
 
 	GLFWwindow* mWindow = glfwCreateWindow(vidmode->width/2, vidmode->height/2, "snopp", NULL, NULL);
 
 	if (!mWindow) {
 		std::cout << "error creating window";
 		glfwTerminate();
-		return false;
+		return nullptr;
 	}
 
   glfwMakeContextCurrent(mWindow);
 	glfwSwapInterval(0);
+
+  return mWindow;
+}
+
+
+int main(int argc, char *argv[]) {
+  
+  if(!glfwInit())
+		return -1;
+
+  GLFWwindow* mWindow = createWindow(); 
+  if (mWindow == nullptr)
+    return -1;
+  
 	glewExperimental = GL_TRUE;
 	glewInit();
 
-  Screen *screen = nullptr;
-  screen = createGui(mWindow);
+  SupersonicGUI* supergui = new SupersonicGUI(mWindow); 
+
+  
+  //fps counter bookkeeping
+  float time_since_update, time = glfwGetTime();
+  int frames = 0;
 
   while (!glfwWindowShouldClose(mWindow)) {
     /* Render here */
     glClear(GL_COLOR_BUFFER_BIT);
 
     /* draw nano GUI */
-    screen->drawContents();
-    screen->drawWidgets();
+    supergui->draw();
 
     /* Swap front and back buffers */
     glfwSwapBuffers(mWindow);
 
     /* Poll for and process events */
     glfwPollEvents();
+
+    /* Fps counter handling */
+    frames++;
+    time = glfwGetTime();
+    if (time - time_since_update > 1.0f){
+      supergui->fps = frames/(time - time_since_update);
+      time_since_update = time;
+      supergui->refresh();
+      frames = 0;
     }
+
+  }
+
 	glfwTerminate();
   return 0;
 }
