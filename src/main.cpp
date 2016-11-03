@@ -142,7 +142,7 @@ int main(int argc, char *argv[]) {
 	Shader shader("../shaders/simple.vert","../shaders/simple.frag");
 
 	Mesh* mesh = Util::createTriangleMesh();
-
+	std::vector<Mesh> meshes = Util::loadFromFile("../assets/bunny.obj");
 	while (!glfwWindowShouldClose(mWindow)) {
 
 		if(glfwGetKey(mWindow, GLFW_KEY_ESCAPE))
