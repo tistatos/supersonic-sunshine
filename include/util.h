@@ -3,7 +3,7 @@
 #include <assimp/Importer.hpp>
 #include <assimp/scene.h>
 #include <assimp/postprocess.h>
-
+#include <iostream>
 namespace Util{
 
 	Mesh* createTriangleMesh() {
@@ -29,12 +29,12 @@ namespace Util{
 		return mesh;
 	}
 	Mesh processMesh(aiMesh* mesh, const aiScene* scene);
-	void processNode(aiNode* node, const aiScene* scene, std::vector<Mesh> meshes);
+	void processNode(aiNode* node, const aiScene* scene, std::vector<Mesh>& meshes);
 
 	std::vector<Mesh> loadFromFile(std::string path) {
 				std::vector<Mesh> meshes;
 				Assimp::Importer importer;
-		const aiScene* scene = importer.ReadFile(path, aiProcess_Triangulate | aiProcess_FlipUVs);
+		const aiScene* scene = importer.ReadFile(path, aiProcess_Triangulate | aiProcess_FlipUVs | aiProcess_GenNormals);
 		if(!scene || scene->mFlags == AI_SCENE_FLAGS_INCOMPLETE || !scene->mRootNode) {// if is Not Zero {
 			std::cout << "ERROR::ASSIMP:: " << importer.GetErrorString() <<std::endl;
 			return std::vector<Mesh>();
@@ -45,8 +45,9 @@ namespace Util{
 
 				return meshes;
 	}
-	void processNode(aiNode* node, const aiScene* scene, std::vector<Mesh> meshes)
+	void processNode(aiNode* node, const aiScene* scene, std::vector<Mesh>& meshes)
 	{
+		std::cout << " process node  ";
 		// Process each mesh located at the current node
 		for(GLuint i = 0; i < node->mNumMeshes; i++) {
 			// The node object only contains indices to index the actual objects in the scene.
@@ -64,6 +65,7 @@ namespace Util{
 		// Data to fill
 		std::vector<Vertex> vertices;
 		std::vector<GLuint> indices;
+
 
 		// Walk through each of the mesh's vertices
 		for(GLuint i = 0; i < mesh->mNumVertices; i++) {

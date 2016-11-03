@@ -143,6 +143,9 @@ int main(int argc, char *argv[]) {
 
 	Mesh* mesh = Util::createTriangleMesh();
 	std::vector<Mesh> meshes = Util::loadFromFile("../assets/bunny.obj");
+
+	std::cout << "meshes loaded: " <<  meshes.size() << std::endl;
+
 	while (!glfwWindowShouldClose(mWindow)) {
 
 		if(glfwGetKey(mWindow, GLFW_KEY_ESCAPE))
@@ -156,9 +159,9 @@ int main(int argc, char *argv[]) {
 		glUseProgram(shader);
 		glm::mat4 proj = cameraProjection * cameraView;
 		glUniformMatrix4fv(glGetUniformLocation(shader, "mvp"), 1, GL_FALSE, glm::value_ptr(proj));
-
-		mesh->draw();
-
+		for (Mesh mesh : meshes){
+			mesh.draw();
+		}
 		glUseProgram(0);
 
 		/* Swap front and back buffers */
