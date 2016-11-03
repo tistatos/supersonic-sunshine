@@ -1,6 +1,6 @@
 #include "SupersonicGui.h"
 
-SupersonicGUI::SupersonicGUI(GLFWwindow* window){
+SupersonicGUI::SupersonicGUI(GLFWwindow* window, std::function<void(float)> cb){
 // Create a nanogui screen and pass the glfw pointer to initialize
 
 	mScreen = new Screen();
@@ -12,6 +12,7 @@ SupersonicGUI::SupersonicGUI(GLFWwindow* window){
 	gui->addVariable("FPS ", fps)->setEditable(false);
 	gui->addVariable("ms ", ms)->setEditable(false);
 
+	this->addSlider("roughness", 0.f, 1.f, cb);
 	mScreen->setVisible(true);
 	mScreen->performLayout();
 
@@ -57,6 +58,18 @@ SupersonicGUI::SupersonicGUI(GLFWwindow* window){
 	});
 
 }
+
+void SupersonicGUI::addSlider(std::string label, float min, float max,const std::function<void(float)> &cb){
+
+		Slider *slider = new Slider(gui->window());
+		slider->setValue(1.0f);
+		slider->setFixedWidth(60);
+		slider->setRange(std::pair<float,float>(min, max));
+		slider->setCallback(cb);
+		gui->addWidget(label, slider);
+
+}
+
 void SupersonicGUI::refresh(){
 	gui->refresh();
 }

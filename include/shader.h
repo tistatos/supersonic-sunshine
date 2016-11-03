@@ -13,15 +13,15 @@ class Shader{
 public:
 
 GLuint loadShader(const char *vertex_path, const char *fragment_path);
-    
-    Shader(const char *vertex_path, const char *fragment_path){
-        this->program = this->loadShader(vertex_path, fragment_path);
-    }
 
-    operator GLuint() { return program; }
+Shader(const char *vertex_path, const char *fragment_path){
+		this->program = this->loadShader(vertex_path, fragment_path);
+}
 
-    private: 
-    GLuint program; 
+operator GLuint() { return program; }
 
+
+GLuint program;
+private:
 };
 #endif

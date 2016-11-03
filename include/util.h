@@ -34,7 +34,7 @@ namespace Util{
 	std::vector<Mesh> loadFromFile(std::string path) {
 				std::vector<Mesh> meshes;
 				Assimp::Importer importer;
-		const aiScene* scene = importer.ReadFile(path, NULL);
+		const aiScene* scene = importer.ReadFile(path, aiProcess_Triangulate | aiProcess_GenNormals );
 		if(!scene || scene->mFlags == AI_SCENE_FLAGS_INCOMPLETE || !scene->mRootNode) {// if is Not Zero {
 			std::cout << "ERROR::ASSIMP:: " << importer.GetErrorString() <<std::endl;
 			return std::vector<Mesh>();
@@ -65,7 +65,6 @@ namespace Util{
 		// Data to fill
 		std::vector<Vertex> vertices;
 		std::vector<GLuint> indices;
-
 
 		// Walk through each of the mesh's vertices
 		for(GLuint i = 0; i < mesh->mNumVertices; i++) {

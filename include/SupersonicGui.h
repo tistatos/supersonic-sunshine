@@ -9,13 +9,14 @@ using namespace nanogui;
 
 class SupersonicGUI{
 public:
-	SupersonicGUI(GLFWwindow *window);
+	SupersonicGUI(GLFWwindow* window, std::function<void(float)> cb);
 
 	~SupersonicGUI(){
 		delete mScreen;
 		delete gui;
 	}
 	void setFrameMetrics(int fps, float miliseconds);
+	void addSlider(std::string label,  float min, float max,const std::function<void(float)> &cb);
 	void draw();
 	void refresh();
 
