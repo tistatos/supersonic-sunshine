@@ -126,7 +126,7 @@ int main(int argc, char *argv[]) {
 
 		glUseProgram(shader);
 		glBindVertexArray(VAO);
-		glm::mat4 projection = Projection * cameraView;
+		glm::mat4 projection = cameraProjection * cameraView;
 		glUniformMatrix4fv(glGetUniformLocation(shader, "mvp"), 1, GL_FALSE, glm::value_ptr(projection));
 		glDrawArrays(GL_TRIANGLES, 0, 3);
 		glUseProgram(0);
