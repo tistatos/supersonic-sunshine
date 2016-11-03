@@ -34,7 +34,7 @@ namespace Util{
 	std::vector<Mesh> loadFromFile(std::string path) {
 				std::vector<Mesh> meshes;
 				Assimp::Importer importer;
-		const aiScene* scene = importer.ReadFile(path, aiProcess_Triangulate | aiProcess_FlipUVs | aiProcess_GenNormals);
+		const aiScene* scene = importer.ReadFile(path, NULL);
 		if(!scene || scene->mFlags == AI_SCENE_FLAGS_INCOMPLETE || !scene->mRootNode) {// if is Not Zero {
 			std::cout << "ERROR::ASSIMP:: " << importer.GetErrorString() <<std::endl;
 			return std::vector<Mesh>();

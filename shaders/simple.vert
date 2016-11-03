@@ -9,5 +9,5 @@ out vec3 vNormal;
 
 void main() {
 	vNormal = normal;
-	gl_Position = mvp * vec4(vertex, 1.0);
+	gl_Position = mvp * vec4(vertex/6.0, 1.0);
 }

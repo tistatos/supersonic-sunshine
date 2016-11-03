@@ -131,7 +131,7 @@ int main(int argc, char *argv[]) {
 	SupersonicGUI* supergui = new SupersonicGUI(mWindow);
 
 	cameraView = glm::lookAt(
-			glm::vec3(0.f, 1.5f, -1.f), glm::vec3(0.f, 0.5f, 0.f), glm::vec3(0.f, 1.f, 0.f)
+			glm::vec3(0.f, 1.5f, -6.f), glm::vec3(0.f, 0.5f, 0.f), glm::vec3(0.f, 1.f, 0.f)
 			);
 
 	//fps counter bookkeeping
@@ -151,9 +151,10 @@ int main(int argc, char *argv[]) {
 		if(glfwGetKey(mWindow, GLFW_KEY_ESCAPE))
 			glfwSetWindowShouldClose(mWindow, GL_TRUE);
 
+		glEnable(GL_DEPTH_TEST);
+		glEnable(GL_CULL_FACE);
 		/* Render here */
-		glClear(GL_COLOR_BUFFER_BIT);
-		/* draw nano GUI */
+		glClear(GL_COLOR_BUFFER_BIT| GL_DEPTH_BUFFER_BIT);
 
 		glUseProgram(shader);
 		glm::mat4 proj = cameraProjection * cameraView;
@@ -163,6 +164,7 @@ int main(int argc, char *argv[]) {
 		}
 		glUseProgram(0);
 
+		/* draw nano GUI */
 		supergui->draw();
 		/* Swap front and back buffers */
 		glfwSwapBuffers(mWindow);
