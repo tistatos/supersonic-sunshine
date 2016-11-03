@@ -8,12 +8,12 @@
 #include <GL/glew.h>
 
 #ifdef __APPLE__
-#include <OpenGL/gl.h>
+
 #else
-#include <GL/gl.h>
+	#include <GL/gl.h>
 #endif
 #include <GLFW/glfw3.h>
-#include <nanogui/nanogui.h>
+//#include <nanogui/nanogui.h>
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
@@ -23,10 +23,13 @@
 //stl
 #include <iostream>
 #include <fstream>
+#include <vector>
 
 //local
 #include "SupersonicGui.h"
 #include "shader.h"
+#include "mesh.h"
+#include "util.h"
 
 glm::mat4 cameraProjection;
 glm::mat4 cameraView;
@@ -102,7 +105,7 @@ GLFWwindow* createWindow(){
 	float aspect = (float)width/height;
 	cameraProjection = glm::perspective((float)M_PI/3.0f, aspect, 0.001f, 1000.0f);
 	glfwMakeContextCurrent(window);
-	glfwSwapInterval(0);
+	glfwSwapInterval(1);
 
 	glfwSetWindowSizeCallback(window, windowResizedCallback);
 
@@ -136,25 +139,9 @@ int main(int argc, char *argv[]) {
 	int frames = 0;
 
 
-	GLuint shader = loadShader("../shaders/simple.vert","../shaders/simple.frag");
+	Shader shader("../shaders/simple.vert","../shaders/simple.frag");
 
-	GLuint VAO, vbo;
-
-	GLfloat triangle[] = 	{
-				0.0f, 1.0f, 0.0f,
-				0.5f, 0.0f, 0.0f,
-			 -0.5f, 0.0f, 0.0f
-			};
-
-	glGenBuffers(1, &vbo);
-	glGenVertexArrays(1, &VAO);
-	glBindVertexArray(VAO);
-	glBindBuffer(GL_ARRAY_BUFFER, vbo);
-	glBufferData(GL_ARRAY_BUFFER, 9*sizeof(GLfloat), triangle, GL_STATIC_DRAW );
-	glEnableVertexAttribArray(0);
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(GLfloat), 0);
-	glBindBuffer(GL_ARRAY_BUFFER, 0);
-	glBindVertexArray(0);
+	Mesh* mesh = Util::createTriangleMesh();
 
 	while (!glfwWindowShouldClose(mWindow)) {
 
@@ -167,10 +154,11 @@ int main(int argc, char *argv[]) {
 		supergui->draw();
 
 		glUseProgram(shader);
-		glBindVertexArray(VAO);
-		glm::mat4 projection = cameraProjection * cameraView;
-		glUniformMatrix4fv(glGetUniformLocation(shader, "mvp"), 1, GL_FALSE, glm::value_ptr(projection));
-		glDrawArrays(GL_TRIANGLES, 0, 3);
+		glm::mat4 proj = cameraProjection * cameraView;
+		glUniformMatrix4fv(glGetUniformLocation(shader, "mvp"), 1, GL_FALSE, glm::value_ptr(proj));
+
+		mesh->draw();
+
 		glUseProgram(0);
 
 		/* Swap front and back buffers */
