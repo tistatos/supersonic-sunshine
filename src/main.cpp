@@ -142,7 +142,7 @@ int main(int argc, char *argv[]) {
 	Shader shader("../shaders/simple.vert","../shaders/simple.frag");
 
 	Mesh* mesh = Util::createTriangleMesh();
-	std::vector<Mesh> meshes = Util::loadFromFile("../assets/bunny.obj");
+	std::vector<Mesh> meshes = Util::loadFromFile("../assets/bunnySmall.obj");
 
 	std::cout << "meshes loaded: " <<  meshes.size() << std::endl;
 
@@ -154,7 +154,6 @@ int main(int argc, char *argv[]) {
 		/* Render here */
 		glClear(GL_COLOR_BUFFER_BIT);
 		/* draw nano GUI */
-		supergui->draw();
 
 		glUseProgram(shader);
 		glm::mat4 proj = cameraProjection * cameraView;
@@ -164,6 +163,7 @@ int main(int argc, char *argv[]) {
 		}
 		glUseProgram(0);
 
+		supergui->draw();
 		/* Swap front and back buffers */
 		glfwSwapBuffers(mWindow);
 
