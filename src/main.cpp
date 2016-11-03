@@ -21,6 +21,7 @@
 //stl
 #include <iostream>
 #include <vector>
+
 //local
 #include "SupersonicGui.h"
 #include "shader.h"
@@ -96,7 +97,7 @@ int main(int argc, char *argv[]) {
 	int frames = 0;
 
 
-	GLuint shader = loadShader("../shaders/simple.vert","../shaders/simple.frag");
+	Shader shader("../shaders/simple.vert","../shaders/simple.frag");
 
 	Mesh* mesh = Util::createTriangleMesh();
 
