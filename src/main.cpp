@@ -131,7 +131,7 @@ int main(int argc, char *argv[]) {
 	SupersonicGUI* supergui = new SupersonicGUI(mWindow);
 
 	cameraView = glm::lookAt(
-			glm::vec3(0.f, 1.5f, -6.f), glm::vec3(0.f, 0.5f, 0.f), glm::vec3(0.f, 1.f, 0.f)
+			glm::vec3(0.f, 1.5f, 6.f), glm::vec3(0.f, 0.5f, 0.f), glm::vec3(0.f, 1.f, 0.f)
 			);
 
 	//fps counter bookkeeping
@@ -143,18 +143,18 @@ int main(int argc, char *argv[]) {
 
 	Mesh* mesh = Util::createTriangleMesh();
 	std::vector<Mesh> meshes = Util::loadFromFile("../assets/bunnySmall.obj");
+	std::vector<Mesh> cornell = Util::loadFromFile("../assets/CornellBox-Empty-White.obj");
 
-	std::cout << "meshes loaded: " <<  meshes.size() << std::endl;
 
 	while (!glfwWindowShouldClose(mWindow)) {
 
 		if(glfwGetKey(mWindow, GLFW_KEY_ESCAPE))
 			glfwSetWindowShouldClose(mWindow, GL_TRUE);
-
 		glEnable(GL_DEPTH_TEST);
 		glEnable(GL_CULL_FACE);
 		/* Render here */
 		glClear(GL_COLOR_BUFFER_BIT| GL_DEPTH_BUFFER_BIT);
+		/* draw nano GUI */
 
 		glUseProgram(shader);
 		glm::mat4 proj = cameraProjection * cameraView;
@@ -162,9 +162,11 @@ int main(int argc, char *argv[]) {
 		for (Mesh mesh : meshes){
 			mesh.draw();
 		}
+		for (Mesh mesh : cornell){
+			mesh.draw();
+		}
 		glUseProgram(0);
 
-		/* draw nano GUI */
 		supergui->draw();
 		/* Swap front and back buffers */
 		glfwSwapBuffers(mWindow);
