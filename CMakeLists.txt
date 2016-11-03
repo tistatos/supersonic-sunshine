@@ -14,13 +14,13 @@ set(PROJECT_CXX_DIR ${PROJECT_SOURCE_DIR}/src)
 set(PROJECT_EXT_DIR ${PROJECT_SOURCE_DIR}/external)
 
 if( CMAKE_BINARY_DIR STREQUAL CMAKE_SOURCE_DIR )
-    message( FATAL_ERROR "Please make a build directory" )
+		message( FATAL_ERROR "Please make a build directory" )
 endif()
 if( CMAKE_SOURCE_DIR MATCHES " " )
-  message( "Your Source Directory contains spaces. If you experience problems when compiling, this can be the cause." )
+	message( "Your Source Directory contains spaces. If you experience problems when compiling, this can be the cause." )
 endif()
 if( CMAKE_BINARY_DIR MATCHES " " )
-  message( "Your Build Directory contains spaces. If you experience problems when compiling, this can be the cause." )
+	message( "Your Build Directory contains spaces. If you experience problems when compiling, this can be the cause." )
 endif()
 
 #compiler flags
@@ -28,12 +28,9 @@ SET(CMAKE_CXX_FLAGS "-std=c++11")
 
 if(CMAKE_COMPILER_IS_GNUCXX)
 add_definitions(
-  -g
-  -Wall
- -DTW_STATIC
- -DTW_NO_LIB_PRAGMA
- -DTW_NO_DIRECTD3D
- -DGLEW_STATIC
+	-g
+	-Wall
+	-DGLEW_STATIC
  -D_CRT_SECURE_NO_WARNINGS
 )
 endif()
@@ -44,9 +41,9 @@ find_package(OpenGL REQUIRED)
 if(${CMAKE_SYSTEM_NAME} MATCHES "Linux")
 #fix all opengl libs
 set(OPENGL_LIBRARY
-  ${OPENGL_LIBRARY}
-  -lGL -lXrandr -lXext -lX11 -lrt -lXxf86vm
-  ${CMAKE_DL_LIBS}
+	${OPENGL_LIBRARY}
+	-lGL -lXrandr -lXext -lX11 -lrt -lXxf86vm
+	${CMAKE_DL_LIBS}
 )
 #add unix macros
 add_definitions(-D_UNIX)
@@ -54,14 +51,14 @@ endif()
 
 #Get external dependencies
 add_subdirectory(
-  ${PROJECT_EXT_DIR}
+	${PROJECT_EXT_DIR}
 )
 
 set(ext_includes
 	${GLM_INCLUDE_DIR}
 	${GLFW_INCLUDE_DIR}
 	${GLEW_INCLUDE_DIR}
-  ${NANOGUI_INCLUDE_DIR}
+	${NANOGUI_INCLUDE_DIR}
 )
 
 
@@ -74,14 +71,14 @@ set(EXT_DEPS
 	glm
 	GLFW
 	GLEW
-  nanoGUI
+	nanoGUI
 )
 
 set(ALL_LIBS
 	${OPENGL_LIBRARY}
 	${GLFW_LIBRARIES}
 	${GLEW_LIBRARIES}
-  ${NANOGUI_LIBRARIES}
+	${NANOGUI_LIBRARIES}
 )
 
 add_subdirectory(${PROJECT_CXX_DIR})
