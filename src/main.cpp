@@ -16,6 +16,7 @@
 #include <nanogui/nanogui.h>
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
+#include <glm/gtc/type_ptr.hpp>
 
 //stl
 #include <iostream>
@@ -37,6 +38,7 @@ GLFWwindow* createWindow(){
 	GLFWmonitor* monitor = glfwGetPrimaryMonitor();
 	const GLFWvidmode* vidmode = glfwGetVideoMode(monitor);
 
+
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
 	glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
@@ -52,6 +54,11 @@ GLFWwindow* createWindow(){
 		return nullptr;
 	}
 
+	int width, height;
+	glfwGetWindowSize(window, &width, &height);
+
+	float aspect = (float)width/height;
+	cameraProjection = glm::perspective((float)M_PI/3.0f, aspect, 0.001f, 1000.0f);
 	glfwMakeContextCurrent(window);
 	glfwSwapInterval(0);
 
@@ -71,6 +78,10 @@ int main(int argc, char *argv[]) {
 
 	glewExperimental = GL_TRUE;
 	glewInit();
+
+	printf("GL Vendor:			%s\n", glGetString(GL_VENDOR));
+	printf("GL Render:			%s\n", glGetString(GL_RENDERER));
+	printf("GL Version:			%s\n", glGetString(GL_VERSION));
 
 	SupersonicGUI* supergui = new SupersonicGUI(mWindow);
 
@@ -115,12 +126,10 @@ int main(int argc, char *argv[]) {
 
 		glUseProgram(shader);
 		glBindVertexArray(VAO);
-		glm::mat4 projection = cameraProjection * cameraView;
-		glUniformMatrix4fv(glGetUniformLocation(shader, "mvp"), 1, GL_FALSE, &projection[0][0]);
+		glm::mat4 projection = Projection * cameraView;
+		glUniformMatrix4fv(glGetUniformLocation(shader, "mvp"), 1, GL_FALSE, glm::value_ptr(projection));
 		glDrawArrays(GL_TRIANGLES, 0, 3);
 		glUseProgram(0);
-
-
 
 		/* Swap front and back buffers */
 		glfwSwapBuffers(mWindow);
