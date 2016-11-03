@@ -59,8 +59,8 @@ set(ext_includes
 	${GLFW_INCLUDE_DIR}
 	${GLEW_INCLUDE_DIR}
 	${NANOGUI_INCLUDE_DIR}
+	${ASSIMP_INCLUDE_DIR}
 )
-
 
 include_directories(
 	${ext_includes}
@@ -69,9 +69,9 @@ include_directories(
 
 set(EXT_DEPS
 	glm
-	GLFW
 	GLEW
 	nanoGUI
+	assimp
 )
 
 set(ALL_LIBS
@@ -79,6 +79,7 @@ set(ALL_LIBS
 	${GLFW_LIBRARIES}
 	${GLEW_LIBRARIES}
 	${NANOGUI_LIBRARIES}
+	${ASSIMP_LIBRARIES}
 )
 
 add_subdirectory(${PROJECT_CXX_DIR})
