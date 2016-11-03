@@ -75,7 +75,7 @@ int main(int argc, char *argv[]) {
 	SupersonicGUI* supergui = new SupersonicGUI(mWindow);
 
 	cameraView = glm::lookAt(
-			glm::vec3(0.f, 0.f, -4.f), glm::vec3(), glm::vec3(0.f, 1.f, 0.f)
+			glm::vec3(0.f, 1.5f, -1.f), glm::vec3(0.f, 0.5f, 0.f), glm::vec3(0.f, 1.f, 0.f)
 			);
 
 	//fps counter bookkeeping
@@ -115,7 +115,9 @@ int main(int argc, char *argv[]) {
 
 		glUseProgram(shader);
 		glBindVertexArray(VAO);
-		glDrawElements(GL_TRIANGLES, 3, GL_UNSIGNED_INT, (void*)0);
+		glm::mat4 projection = cameraProjection * cameraView;
+		glUniformMatrix4fv(glGetUniformLocation(shader, "mvp"), 1, GL_FALSE, &projection[0][0]);
+		glDrawArrays(GL_TRIANGLES, 0, 3);
 		glUseProgram(0);
 
 
