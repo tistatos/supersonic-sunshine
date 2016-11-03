@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 2.8.12.2)
-SET(PROJECT_NAME lightproject)
+SET(PROJECT_NAME supersonic-sunshine)
 
 #set project
 project(${PROJECT_NAME})
