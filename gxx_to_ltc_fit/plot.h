@@ -4,7 +4,7 @@
 #include <glm/glm.hpp>
 using namespace glm;
 
-#include "Cimg.h"
+#include "CImg.h"
 using namespace cimg_library;
 
 CImg<float> colorMap(33,1,1,3);
@@ -82,7 +82,7 @@ public:
 
 		return max_value;
 	}
-	
+
 	bool isBrdf;
 	const Brdf* brdf;
 	const vec3 V;
@@ -90,7 +90,7 @@ public:
 	const LTC* ltc;
 };
 
-// raytrace a sphere 
+// raytrace a sphere
 // evaluate the BRDF or the LTC
 // call the color map
 void spherical_plot(const BrdfOrLTC& brdforltc, const char* filename)
@@ -99,12 +99,12 @@ void spherical_plot(const BrdfOrLTC& brdforltc, const char* filename)
 	const int image_size = 256;
 	CImg<float> image(image_size, image_size, 1, 3);
 
-	// camera 
+	// camera
 	vec3 Z = normalize(vec3(-1,1,1));
 	vec3 X = normalize(vec3(1,1,0));
 	X = normalize(X - Z*dot(X,Z));
 	vec3 Y = -cross(X,Z);
-		
+
 	// maximum value of the function (color map scaling)
 	float max_value = brdforltc.computeMaxValue();
 
@@ -121,7 +121,7 @@ void spherical_plot(const BrdfOrLTC& brdforltc, const char* filename)
 			image(i, j, 0, 1) = 255.0f;
 			image(i, j, 0, 2) = 255.0f;
 			continue;
-		}		
+		}
 		const float z = sqrtf(1.0f - x*x - y*y);
 		vec3 L = x*X + y*Y + z*Z;
 
@@ -142,7 +142,7 @@ void spherical_plot(const BrdfOrLTC& brdforltc, const char* filename)
 
 void make_spherical_plots(const Brdf& brdf, const mat3 * tab, const int N)
 {
-	// init color map texture (for linear interpolation) 
+	// init color map texture (for linear interpolation)
 	for(int i=0 ; i<33 ; ++i)
 	{
 		colorMap(i,0,0,0) = colorMap_data[3*i+0];
@@ -150,8 +150,8 @@ void make_spherical_plots(const Brdf& brdf, const mat3 * tab, const int N)
 		colorMap(i,0,0,2) = colorMap_data[3*i+2];
 	}
 
-	// fill LTC matrices in texture (for linear interpolation) 
-	CImg<float> LTC_matrices(N, N, 1, 9);	
+	// fill LTC matrices in texture (for linear interpolation)
+	CImg<float> LTC_matrices(N, N, 1, 9);
 	for(int j = 0 ; j<N ; ++j)
 	for(int i = 0 ; i<N ; ++i)
 	{
@@ -176,18 +176,18 @@ void make_spherical_plots(const Brdf& brdf, const mat3 * tab, const int N)
 		const float alpha = alpha_tab[a];
 		const float theta = theta_tab[t] * 3.14159f / 180.0f;
 		const vec3 V(sinf(theta), 0.0f, cosf(theta));
-		
+
 		// fetch texture with parameterization = [(sqrtf(alpha), theta]
 		float x = sqrtf(alpha)*((float)(LTC_matrices.width())-1.0f);
 		float y = (theta/1.57079f)*((float)(LTC_matrices.height())-1.0f);
-		mat3 M = mat3(			
-					LTC_matrices.linear_atXY(x, y, 0, 0), 
+		mat3 M = mat3(
+					LTC_matrices.linear_atXY(x, y, 0, 0),
 					LTC_matrices.linear_atXY(x, y, 0, 1),
 					LTC_matrices.linear_atXY(x, y, 0, 2),
-					LTC_matrices.linear_atXY(x, y, 0, 3), 
+					LTC_matrices.linear_atXY(x, y, 0, 3),
 					LTC_matrices.linear_atXY(x, y, 0, 4),
 					LTC_matrices.linear_atXY(x, y, 0, 5),
-					LTC_matrices.linear_atXY(x, y, 0, 6), 
+					LTC_matrices.linear_atXY(x, y, 0, 6),
 					LTC_matrices.linear_atXY(x, y, 0, 7),
 					LTC_matrices.linear_atXY(x, y, 0, 8));
 
@@ -202,21 +202,21 @@ void make_spherical_plots(const Brdf& brdf, const mat3 * tab, const int N)
 		filename_ltc << "alpha_";
 		filename_ltc << std::setfill('0') << std::setw(3) << (int)(100.0f*alpha_tab[a]) ;
 		filename_ltc << "_theta_";
-		filename_ltc << std::setfill('0') << std::setw(2) << (int)theta_tab[t] << "_ltc.png"; 
+		filename_ltc << std::setfill('0') << std::setw(2) << (int)theta_tab[t] << "_ltc.png";
 
 		// filename BRFDF
 		std::stringstream filename_brdf;
 		filename_brdf << "alpha_";
 		filename_brdf << std::setfill('0') << std::setw(3) << (int)(100.0f*alpha_tab[a]) ;
 		filename_brdf << "_theta_";
-		filename_brdf << std::setfill('0') << std::setw(2) << (int)theta_tab[t] << "_brdf.png"; 
-		
+		filename_brdf << std::setfill('0') << std::setw(2) << (int)theta_tab[t] << "_brdf.png";
+
 		// plot LTC
 		spherical_plot(BrdfOrLTC(&ltc, NULL), filename_ltc.str().c_str());
 
-		// plot BRDF	
+		// plot BRDF
 		spherical_plot(BrdfOrLTC(NULL, &brdf, V, alpha), filename_brdf.str().c_str());
-	}		
+	}
 }
 
 #endif
