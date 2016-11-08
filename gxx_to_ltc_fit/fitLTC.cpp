@@ -20,7 +20,7 @@ using namespace glm;
 #include "plot.h"
 
 // size of precomputed table (theta, alpha)
-const int N = 16;
+const int N = 64;
 // number of samples used to compute the error during fitting
 const int Nsample = 50;
 // minimal roughness (avoid singularities)
