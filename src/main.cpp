@@ -32,22 +32,23 @@
 #include "mesh.h"
 #include "util.h"
 #include "ltc.h"
+#include "Camera.h"
 
 #define VSYNC true
 
 glm::mat4 cameraProjection;
 glm::mat4 cameraView;
+Camera *camera;
 
 void windowResizedCallback(GLFWwindow* window, int width, int height) {
 	float aspect = (float)width/height;
-	cameraProjection = glm::perspective((float)M_PI/3.0f, aspect, 0.001f, 1000.0f);
+	camera->setProjectionMatrix(glm::perspective((float)M_PI/3.0f, aspect, 0.001f, 1000.0f));
 }
 
 /* Inits a GLFW Window with OpenGL 3.3. Make sure glfwInit has been called */
 GLFWwindow* createWindow(){
 	GLFWmonitor* monitor = glfwGetPrimaryMonitor();
 	const GLFWvidmode* vidmode = glfwGetVideoMode(monitor);
-
 
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
@@ -64,11 +65,6 @@ GLFWwindow* createWindow(){
 		return nullptr;
 	}
 
-	int width, height;
-	glfwGetWindowSize(window, &width, &height);
-
-	float aspect = (float)width/height;
-	cameraProjection = glm::perspective((float)M_PI/3.0f, aspect, 0.001f, 1000.0f);
 	glfwMakeContextCurrent(window);
 	glfwSwapInterval(VSYNC);
 
@@ -92,12 +88,10 @@ int main(int argc, char *argv[]) {
 	printf("GL Render:			%s\n", glGetString(GL_RENDERER));
 	printf("GL Version:			%s\n", glGetString(GL_VERSION));
 
-
-	cameraView = glm::lookAt(
-			glm::vec3(0.f, 1.5f, 6.f), //position
-			glm::vec3(0.f, 0.5f, 0.f),  // look at
-			glm::vec3(0.f, 1.f, 0.f) // up-vector
-			);
+	int width, height;
+	glfwGetWindowSize(mWindow, &width, &height);
+	camera = new Camera(width, height);
+	camera->update();
 
 	//fps counter bookkeeping
 	float time_since_update, time, lastFrame = glfwGetTime();
@@ -106,7 +100,7 @@ int main(int argc, char *argv[]) {
 
 	Shader shader("../shaders/simple.vert","../shaders/simple.frag");
 	float roughness = 0.5f;
-	float scale = 1.3f;
+
 	SupersonicGUI* supergui = new SupersonicGUI(mWindow, [&roughness, &shader](float val){ roughness = val; } );
 	Mesh* mesh = Util::createTriangleMesh();
 
@@ -159,13 +153,17 @@ int main(int argc, char *argv[]) {
 		/* draw nano GUI */
 
 		glUseProgram(shader);
+		camera->update();
+		cameraView = camera->getViewMatrix();
+		cameraProjection = camera->getProjectionMatrix();
 		glm::mat4 mvp = cameraProjection * cameraView * meshMat;
 		glm::mat4 mv = cameraView * meshMat;
 		glm::mat3 normalMat = glm::inverseTranspose(glm::mat3(mv));
 		glUniform1f(glGetUniformLocation(shader, "roughness"), roughness );
 
 		glUniformMatrix4fv(glGetUniformLocation(shader, "mv"), 1, GL_FALSE, glm::value_ptr(mv));
-		glUniformMatrix4fv(glGetUniformLocation(shader, "v"), 1, GL_FALSE, glm::value_ptr(cameraView));
+		glUniformMatrix4fv(glGetUniformLocation(shader, "m"), 1, GL_FALSE, glm::value_ptr(meshMat));
+
 		glUniformMatrix4fv(glGetUniformLocation(shader, "mvp"), 1, GL_FALSE, glm::value_ptr(mvp));
 		glUniformMatrix3fv(glGetUniformLocation(shader, "normalMatrix"), 1, GL_FALSE, glm::value_ptr(normalMat));
 		plane->draw();

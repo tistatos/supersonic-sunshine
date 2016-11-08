@@ -1,16 +1,22 @@
 #version 330 core
 out vec4 color;
 
+layout (std140) uniform Matrices{
+    mat4 p;
+    mat4 v;
+};
+
 in vec3 vNormal;
 in vec4 lightPos;
 in vec3 vPosition;
 in mat4 modelMatrix;
 
-uniform mat4 v;
+
 uniform mat4 mv;
 uniform mat3 normalMatrix;
 
 uniform float roughness;
+
 #define PI 3.14159265359
 
 
