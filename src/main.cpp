@@ -30,6 +30,7 @@
 #include "shader.h"
 #include "mesh.h"
 #include "util.h"
+#include "ltc.h"
 
 #define VSYNC true
 
