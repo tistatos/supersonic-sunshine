@@ -1,6 +1,50 @@
 #ifndef _EXPORT_
 #define _EXPORT_
 
+//export data for supersonic sunshine
+void writeSuperSonic(mat3* tab, vec2* tabAmplitude, int N) {
+	ofstream file("results/ltc.h");
+
+	file << std::fixed;
+	file << std::setprecision(6);
+
+	file << "static const int size = " << N  << ";" << endl << endl;
+
+	file << "static const float invM[size*size*4] = {" << endl;
+
+	int n = 0;
+	for (int i = 0; i < N*N; ++i, n += 4) {
+		const mat3& m = tab[i];
+
+		float a = m[0][0];
+		float b = m[0][2];
+		float c = m[1][1];
+		float d = m[2][0];
+
+		float x =  a;
+		float y = -b;
+		float z = (a - b*d) / c;
+		float w = -d;
+
+		file << x <<", " << y << ", " << z << ", " << w << ",";
+		file << endl;
+	}
+	file << "};" << endl << endl;
+
+	file << "static const float tabAmplitude[size*size] = {" << endl;
+	for(int t = 0 ; t < N ; ++t)
+		for(int a = 0 ; a < N ; ++a) {
+			file << tabAmplitude[a + t*N][0] << "f";
+			if(a != N-1 || t != N-1)
+				file << ", ";
+			file << endl;
+		}
+	file << "};" << endl;
+
+	file.close();
+
+}
+
 // export data in C
 void writeTabC(mat3 * tab, vec2 * tabAmplitude, int N)
 {

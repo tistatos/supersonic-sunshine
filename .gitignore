@@ -2,3 +2,4 @@ build/
 .DS_Store
 .vscode
 .ycm_extra_conf.py*
+gxx_to_ltc_fit/results/

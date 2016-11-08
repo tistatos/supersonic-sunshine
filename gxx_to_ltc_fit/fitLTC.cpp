@@ -6,12 +6,13 @@ using namespace glm;
 #include <algorithm>
 #include <fstream>
 #include <iomanip>
+#include <omp.h>
 
 #include "LTC.h"
 #include "brdf.h"
 #include "brdf_ggx.h"
 #include "brdf_beckmann.h"
-#include "Brdf_disneyDiffuse.h"
+#include "brdf_disneyDiffuse.h"
 
 #include "nelder_mead.h"
 
@@ -19,7 +20,7 @@ using namespace glm;
 #include "plot.h"
 
 // size of precomputed table (theta, alpha)
-const int N = 64;
+const int N = 16;
 // number of samples used to compute the error during fitting
 const int Nsample = 50;
 // minimal roughness (avoid singularities)
@@ -95,7 +96,7 @@ float computeError(const LTC& ltc, const Brdf& brdf, const vec3& V, const float 
 		{
 			// sample
 			const vec3 L = ltc.sample(U1, U2);
-				
+
 			// error with MIS weight
 			float pdf_brdf;
 			float eval_brdf = brdf.eval(V, L, alpha, pdf_brdf);
@@ -113,7 +114,7 @@ float computeError(const LTC& ltc, const Brdf& brdf, const vec3& V, const float 
 
 			// error with MIS weight
 			float pdf_brdf;
-			float eval_brdf = brdf.eval(V, L, alpha, pdf_brdf);			
+			float eval_brdf = brdf.eval(V, L, alpha, pdf_brdf);
 			float eval_ltc = ltc.eval(L);
 			float pdf_ltc = eval_ltc / ltc.amplitude;
 			double error_ = fabsf(eval_brdf - eval_ltc);
@@ -192,9 +193,9 @@ void fitTab(mat3 * tab, vec2 * tabAmplitude, const int N, const Brdf& brdf)
 	LTC ltc;
 
 	// loop over theta and alpha
+	#pragma omp parallel for collapse(2)
 	for(int a = N-1 ; a >= 0   ; --a)
-	for(int t =   0 ; t <= N-1 ; ++t)
-	{
+	for(int t =   0 ; t <= N-1 ; ++t) {
 		float theta = std::min<float>(1.57f, t / float(N-1) * 1.57079f);
 		const vec3 V = vec3(sinf(theta),0,cosf(theta));
 
@@ -202,12 +203,12 @@ void fitTab(mat3 * tab, vec2 * tabAmplitude, const int N, const Brdf& brdf)
 		float roughness = a / float(N-1);
 		float alpha = std::max<float>(roughness*roughness, MIN_ALPHA);
 
-		cout << "a = " << a << "\t t = " << t  << endl;
-		cout << "alpha = " << alpha << "\t theta = " << theta << endl;
-		cout << endl;
+		//cout << "a = " << a << "\t t = " << t  << endl;
+		//cout << "alpha = " << alpha << "\t theta = " << theta << endl;
+		//cout << endl;
 
-		ltc.amplitude = computeNorm(brdf, V, alpha); 
-		const vec3 averageDir = computeAverageDir(brdf, V, alpha);		
+		ltc.amplitude = computeNorm(brdf, V, alpha);
+		const vec3 averageDir = computeAverageDir(brdf, V, alpha);
 		bool isotropic;
 
 		// 1. first guess for the fit
@@ -229,7 +230,7 @@ void fitTab(mat3 * tab, vec2 * tabAmplitude, const int N, const Brdf& brdf)
 				ltc.m11 = std::max<float>(tab[a+1+t*N][0][0], MIN_ALPHA);
 				ltc.m22 = std::max<float>(tab[a+1+t*N][1][1], MIN_ALPHA);
 			}
-			
+
 			ltc.m13 = 0;
 			ltc.m23 = 0;
 			ltc.update();
@@ -267,35 +268,41 @@ void fitTab(mat3 * tab, vec2 * tabAmplitude, const int N, const Brdf& brdf)
 		tab[a+t*N][1][2] = 0;
 		tab[a+t*N] = 1.0f / tab[a+t*N][2][2] * tab[a+t*N];
 
-		cout << tab[a+t*N][0][0] << "\t " << tab[a+t*N][1][0] << "\t " << tab[a+t*N][2][0] << endl;
-		cout << tab[a+t*N][0][1] << "\t " << tab[a+t*N][1][1] << "\t " << tab[a+t*N][2][1] << endl;
-		cout << tab[a+t*N][0][2] << "\t " << tab[a+t*N][1][2] << "\t " << tab[a+t*N][2][2] << endl;
-		cout << endl;
+		//cout << tab[a+t*N][0][0] << "\t " << tab[a+t*N][1][0] << "\t " << tab[a+t*N][2][0] << endl;
+		//cout << tab[a+t*N][0][1] << "\t " << tab[a+t*N][1][1] << "\t " << tab[a+t*N][2][1] << endl;
+		//cout << tab[a+t*N][0][2] << "\t " << tab[a+t*N][1][2] << "\t " << tab[a+t*N][2][2] << endl;
+		//cout << endl;
 	}
 }
 
 
 int main(int argc, char* argv[])
 {
+	double begin = omp_get_wtime();
 	// BRDF to fit
 	BrdfGGX brdf;
 	//BrdfBeckmann brdf;
 	//BrdfDisneyDiffuse brdf;
-	
+
 	// allocate data
 	mat3 * tab = new mat3[N*N];
 	vec2 * tabAmplitude = new vec2[N*N];
-	
+
 	// fit
 	fitTab(tab, tabAmplitude, N, brdf);
 
 	// export in C, matlab and DDS
-	writeTabMatlab(tab, tabAmplitude, N);
-	writeTabC(tab, tabAmplitude, N);
-	writeDDS(tab, tabAmplitude, N);
+	//writeTabMatlab(tab, tabAmplitude, N);
+	//writeTabC(tab, tabAmplitude, N);
+	//writeDDS(tab, tabAmplitude, N);
+	writeSuperSonic(tab, tabAmplitude, N);
 
+	double end = omp_get_wtime();
+	double elapsed_secs = double(end - begin);
+
+	std::cout << "Done: " << elapsed_secs  << std::endl;
 	// spherical plots
-	make_spherical_plots(brdf, tab, N);
+	//make_spherical_plots(brdf, tab, N);
 
 	// delete data
 	delete [] tab;
@@ -303,4 +310,3 @@ int main(int argc, char* argv[])
 
 	return 0;
 }
-
