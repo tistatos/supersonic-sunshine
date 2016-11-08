@@ -28,6 +28,7 @@ public:
       glBindVertexArray(0);
     }
 
+
 private:
 	GLuint vao, vbo, ibo;
 

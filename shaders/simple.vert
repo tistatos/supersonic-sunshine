@@ -5,13 +5,14 @@ layout(location = 1) in vec3 normal;
 
 uniform mat4 mv;
 uniform mat4 mvp;
-uniform float scale;
+uniform mat3 normalMatrix;
+
 
 out vec3 vNormal;
 out vec3 vPosition;
 
 void main() {
-	vNormal = normalize((transpose(inverse(mv)) * vec4(normal, 1.0)).xyz);
-	vPosition = scale*vertex;
-	gl_Position = mvp * vec4(scale*vertex, 1.0);
+	vNormal = normalMatrix * normal;
+	vPosition = (mv*vec4(vertex,1.0)).xyz;
+	gl_Position = mvp * vec4(vertex, 1.0);
 }

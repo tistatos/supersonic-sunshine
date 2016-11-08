@@ -16,6 +16,7 @@
 //#include <nanogui/nanogui.h>
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
+#include <glm/gtc/matrix_inverse.hpp>
 #include <glm/gtc/type_ptr.hpp>
 #include <assimp/Importer.hpp>      // C++ importer interface
 #include <assimp/scene.h>           // Output data structure
@@ -104,16 +105,16 @@ int main(int argc, char *argv[]) {
 
 	Shader shader("../shaders/simple.vert","../shaders/simple.frag");
 	float roughness = 0.5f;
-	float scale = 0.3f;
+	float scale = 1.3f;
 	SupersonicGUI* supergui = new SupersonicGUI(mWindow, [&roughness, &shader](float val){ roughness = val; } );
 	Mesh* mesh = Util::createTriangleMesh();
-
+	Mesh* plane = Util::createPlaneMesh(100.f,100.f);
 
 
 	//std::vector<Mesh> cornell = Util::loadFromFile("../assets/CornellBox-Empty-White.obj");
 
 	std::vector<Mesh> meshes = Util::loadFromFile("../assets/sphere.obj");
-	glm::mat4 meshMat(1.0);
+	glm::mat4 meshMat(1.0f);
 
 	glm::vec3 up(0.0f, 1.0f, 0.0f);
 	glm::vec3 right(1.0f, 0.0f, 0.0f);
@@ -132,9 +133,9 @@ int main(int argc, char *argv[]) {
 		if(glfwGetKey(mWindow, GLFW_KEY_S))
 			meshMat = glm::rotate(meshMat, (float)(delta * -M_PI/3.0f), right);
 		if(glfwGetKey(mWindow, GLFW_KEY_Q))
-			scale += 0.1*delta;
+			meshMat = glm::scale(meshMat, glm::vec3(1.1f));
 		if(glfwGetKey(mWindow, GLFW_KEY_E))
-			scale -= 0.1*delta;
+			meshMat = glm::scale(meshMat, glm::vec3(0.9f));
 		glEnable(GL_DEPTH_TEST);
 		glEnable(GL_CULL_FACE);
 		/* Render here */
@@ -146,13 +147,18 @@ int main(int argc, char *argv[]) {
 		glUseProgram(shader);
 		glm::mat4 mvp = cameraProjection * cameraView * meshMat;
 		glm::mat4 mv = cameraView * meshMat;
+		glm::mat3 normalMat = glm::inverseTranspose(glm::mat3(mv));
 		glUniform1f(glGetUniformLocation(shader, "roughness"), roughness );
-		glUniform1f(glGetUniformLocation(shader, "scale"), scale );
+
 		glUniformMatrix4fv(glGetUniformLocation(shader, "mv"), 1, GL_FALSE, glm::value_ptr(mv));
+		glUniformMatrix4fv(glGetUniformLocation(shader, "v"), 1, GL_FALSE, glm::value_ptr(cameraView));
 		glUniformMatrix4fv(glGetUniformLocation(shader, "mvp"), 1, GL_FALSE, glm::value_ptr(mvp));
+		glUniformMatrix3fv(glGetUniformLocation(shader, "normalMatrix"), 1, GL_FALSE, glm::value_ptr(normalMat));
+		plane->draw();
 		for (Mesh mesh : meshes) {
 			mesh.draw();
 		}
+		//mesh->draw();
 		// for (Mesh mesh : cornell){
 		// 	mesh.draw();
 		// }

@@ -6,20 +6,55 @@ in vec4 lightPos;
 in vec3 vPosition;
 in mat4 modelMatrix;
 
-uniform float roughness;
+uniform mat4 v;
+uniform mat4 mv;
+uniform mat3 normalMatrix;
 
+uniform float roughness;
 #define PI 3.14159265359
 
 
-float cosineDistribution(vec3 N, vec3 Lpos){
-	vec3 L = normalize(Lpos - N);
-	if (L.z < 0)
-		return 0;
-	else
-		return L.z/PI;
+float IntegrateEdge(vec3 v1, vec3 v2)
+{
+    float cosTheta = dot(v1, v2);
+    float theta = acos(cosTheta);
+    float res = cross(v1, v2).z * ((theta > 0.001) ? theta/sin(theta) : 1.0);
+
+    return res;
 }
 
+float arealightDiffuse(vec3 N, vec3 V, vec3 P, vec3 points[4]){
+		// construct orthonormal basis around N
+		mat3 Minv = mat3(1.0);
 
+    vec3 T1, T2;
+    T1 = normalize(V - N*dot(V, N));
+    T2 = cross(N, T1);
+
+    Minv = Minv * transpose(mat3(T1, T2, N));
+		vec3 L[5];
+    L[0] = Minv * (points[0] - P);
+    L[1] = Minv * (points[1] - P);
+    L[2] = Minv * (points[2] - P);
+    L[3] = Minv * (points[3] - P);
+
+
+    L[0] = normalize(L[0]);
+    L[1] = normalize(L[1]);
+    L[2] = normalize(L[2]);
+    L[3] = normalize(L[3]);
+		 // integrate
+    float sum = 0.0;
+
+    sum += IntegrateEdge(L[0], L[1]);
+    sum += IntegrateEdge(L[1], L[2]);
+    sum += IntegrateEdge(L[2], L[3]);
+		sum += IntegrateEdge(L[3], L[0]);
+
+		sum = max(sum, 0.0);
+
+		return sum;
+}
 
 // An "improved" Oren-Nayar - see http://mimosa-pudica.net/improved-oren-nayar.html
 float diffuseReflection(float rough, float albedo, vec3 L, vec3 N, vec3 V){
@@ -45,19 +80,26 @@ float diffuseReflection(float rough, float albedo, vec3 L, vec3 N, vec3 V){
 
 void main() {
 	//hårdkodade positioner
-	vec3 lightPos = vec3(3.0,10.0,-3.0);
-	vec3 eyePos = vec3(0.0, 1.5, 6.0);
+	vec3 lightPos = (v * vec4(0.0,1.5,6.0,1.0)).xyz;
+	vec3 eyePos = (v * vec4(0.0,1.5, 6.0,1.0)).xyz;
+	vec3 pos = vec4(vPosition,1.0).xyz;
+	vec3 points[4];
 
+	points[0] = (v*vec4(0.5, 3.0, 0.5,1.0)).xyz;
+	points[1] =	(v*vec4(0.5, 3.0, -0.5,1.0)).xyz;
+	points[2] =	(v*vec4(-0.5, 3.0, -0.5,1.0)).xyz;
+	points[3] =	(v*vec4(-0.5, 3.0, 0.5,1.0)).xyz;
 
-	vec3 L = normalize(lightPos-vPosition);
+	vec3 L = normalize(lightPos-pos);
 	vec3 N = normalize(vNormal);
-	vec3 V = normalize(eyePos - vPosition);
+	vec3 V = normalize(eyePos - pos	);
 
-	float diffuse = diffuseReflection(roughness, 0.98, L, N, V);
-	diffuse = cosineDistribution(N, lightPos);
+	// float diffuse = diffuseReflection(roughness, 0.95, L, N, V);
+	float diffuse = arealightDiffuse(N,V,pos, points);
 	vec3 fixedNormal = vNormal+1.0;
 	fixedNormal /= 2.0;
 
-
-	color = vec4(vec3(diffuse), 1.0);
+	color = vec4(vec3(diffuse),1.0);
+	//color = vec4(pos,1.0);
+	//color = vec4(vec3(debug(N, V, L)), 1.0);
 }

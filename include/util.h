@@ -28,13 +28,43 @@ namespace Util{
 
 		return mesh;
 	}
+
+	Mesh* createPlaneMesh(float x, float y){
+		std::vector<Vertex> vertices;
+		std::vector<GLuint> indices;
+
+		indices.push_back(0);
+		indices.push_back(1);
+		indices.push_back(2);
+		indices.push_back(2);
+		indices.push_back(3);
+		indices.push_back(0);
+		Vertex v0,v1,v2,v3;
+		v0.position = glm::vec3(x,0.0f,y);
+		v1.position = glm::vec3(x,0.0f,-y);
+		v2.position = glm::vec3(-x,0.0f,-y);
+		v3.position = glm::vec3(-x,0.0f,y);
+		v0.normal = glm::vec3(0.0f,1.0f,0.0f);
+		v1.normal = glm::vec3(0.0f,1.0f,0.0f);
+		v2.normal = glm::vec3(0.0f,1.0f,0.0f);
+		v3.normal = glm::vec3(0.0f,1.0f,0.0f);
+		vertices.push_back(v0);
+		vertices.push_back(v1);
+		vertices.push_back(v2);
+		vertices.push_back(v3);
+
+		Mesh* mesh = new Mesh(vertices, indices);
+
+		return mesh;
+	}
+
 	Mesh processMesh(aiMesh* mesh, const aiScene* scene);
 	void processNode(aiNode* node, const aiScene* scene, std::vector<Mesh>& meshes);
 
 	std::vector<Mesh> loadFromFile(std::string path) {
 				std::vector<Mesh> meshes;
 				Assimp::Importer importer;
-		const aiScene* scene = importer.ReadFile(path, aiProcess_Triangulate | aiProcess_GenNormals );
+		const aiScene* scene = importer.ReadFile(path, aiProcess_Triangulate | aiProcess_GenSmoothNormals );
 		if(!scene || scene->mFlags == AI_SCENE_FLAGS_INCOMPLETE || !scene->mRootNode) {// if is Not Zero {
 			std::cout << "ERROR::ASSIMP:: " << importer.GetErrorString() <<std::endl;
 			return std::vector<Mesh>();
