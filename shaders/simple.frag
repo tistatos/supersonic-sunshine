@@ -9,6 +9,18 @@ in mat4 modelMatrix;
 uniform float roughness;
 
 #define PI 3.14159265359
+
+
+float cosineDistribution(vec3 N, vec3 Lpos){
+	vec3 L = normalize(Lpos - N);
+	if (L.z < 0)
+		return 0;
+	else
+		return L.z/PI;
+}
+
+
+
 // An "improved" Oren-Nayar - see http://mimosa-pudica.net/improved-oren-nayar.html
 float diffuseReflection(float rough, float albedo, vec3 L, vec3 N, vec3 V){
 	float NdotL = dot(N,L);
@@ -33,15 +45,16 @@ float diffuseReflection(float rough, float albedo, vec3 L, vec3 N, vec3 V){
 
 void main() {
 	//hårdkodade positioner
-	vec3 lightPos = vec3(3.0,10.0,3.0);
+	vec3 lightPos = vec3(3.0,10.0,-3.0);
 	vec3 eyePos = vec3(0.0, 1.5, 6.0);
+
 
 	vec3 L = normalize(lightPos-vPosition);
 	vec3 N = normalize(vNormal);
 	vec3 V = normalize(eyePos - vPosition);
 
 	float diffuse = diffuseReflection(roughness, 0.98, L, N, V);
-
+	diffuse = cosineDistribution(N, lightPos);
 	vec3 fixedNormal = vNormal+1.0;
 	fixedNormal /= 2.0;
 

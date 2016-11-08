@@ -112,7 +112,7 @@ int main(int argc, char *argv[]) {
 
 	//std::vector<Mesh> cornell = Util::loadFromFile("../assets/CornellBox-Empty-White.obj");
 
-	std::vector<Mesh> meshes = Util::loadFromFile("../assets/bunnySmall.obj");
+	std::vector<Mesh> meshes = Util::loadFromFile("../assets/sphere.obj");
 	glm::mat4 meshMat(1.0);
 
 	glm::vec3 up(0.0f, 1.0f, 0.0f);
