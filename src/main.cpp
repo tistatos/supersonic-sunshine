@@ -109,6 +109,15 @@ int main(int argc, char *argv[]) {
 	SupersonicGUI* supergui = new SupersonicGUI(mWindow, [&roughness, &shader](float val){ roughness = val; } );
 	Mesh* mesh = Util::createTriangleMesh();
 
+	GLuint LTCmat, LTCamp;
+	glGenTextures(1, &LTCmat);
+	assert(LTCmat >= 0);
+	glBindTexture(GL_TEXTURE_2D, LTCmat);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA32F, size, size, 0, GL_RGBA, GL_UNSIGNED_BYTE, (void*)&invM);
+	glBindTexture(GL_TEXTURE_2D, 0);
 
 
 	//std::vector<Mesh> cornell = Util::loadFromFile("../assets/CornellBox-Empty-White.obj");

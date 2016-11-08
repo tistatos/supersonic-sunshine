@@ -10,7 +10,7 @@ void writeSuperSonic(mat3* tab, vec2* tabAmplitude, int N) {
 
 	file << "static const int size = " << N  << ";" << endl << endl;
 
-	file << "static const glm::vec4 invM[size*size] = {" << endl;
+	file << "static const float invM[size*size*4] = {" << endl;
 
 	int n = 0;
 	for (int i = 0; i < N*N; ++i, n += 4) {
@@ -26,7 +26,7 @@ void writeSuperSonic(mat3* tab, vec2* tabAmplitude, int N) {
 		float z = (a - b*d) / c;
 		float w = -d;
 
-		file << "glm::vec4(" << x <<", " << y << ", " << z << ", " << w << "),";
+		file << x <<", " << y << ", " << z << ", " << w << ",";
 		file << endl;
 	}
 	file << "};" << endl << endl;
