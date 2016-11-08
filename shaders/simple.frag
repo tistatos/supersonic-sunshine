@@ -1,11 +1,12 @@
 #version 330 core
 out vec4 color;
 
-in vec3 vNormal;
-in vec4 lightPos;
 in vec3 vPosition;
+in vec3 vNormal;
+in vec2 vTexCoords;
 in mat4 modelMatrix;
 
+uniform sampler2D tex;
 uniform mat4 v;
 uniform mat4 mv;
 uniform mat3 normalMatrix;
@@ -99,7 +100,8 @@ void main() {
 	vec3 fixedNormal = vNormal+1.0;
 	fixedNormal /= 2.0;
 
+	vec4 ltc = texture(tex, vTexCoords);
+
 	color = vec4(vec3(diffuse),1.0);
-	//color = vec4(pos,1.0);
 	//color = vec4(vec3(debug(N, V, L)), 1.0);
 }

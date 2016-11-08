@@ -6,7 +6,7 @@
 #include <iostream>
 namespace Util{
 
-	Mesh* createTriangleMesh() {
+	Mesh createTriangleMesh() {
 		std::vector<Vertex> vertices;
 		std::vector<GLuint> indices;
 
@@ -17,19 +17,20 @@ namespace Util{
 		v0.position = glm::vec3(0.0f,1.0f,0.0f);
 		v1.position = glm::vec3(0.5f,0.0f,0.0f);
 		v2.position = glm::vec3(-0.5f,0.0f,0.0f);
-		v0.normal = glm::vec3(1.0f,0.0f,0.0f);
-		v1.normal = glm::vec3(0.0f,1.0f,0.0f);
-		v2.normal = glm::vec3(0.0f,0.0f,1.0f);
+		v0.normal = glm::vec3(0.0f,0.0f,-1.0f);
+		v1.normal = glm::vec3(0.0f,0.0f,-1.0f);
+		v2.normal = glm::vec3(0.0f,0.0f,-1.0f);
+		v0.textureCoordinates = glm::vec2(0.5f,1.0f);
+		v1.textureCoordinates = glm::vec2(0.0f,0.0f);
+		v2.textureCoordinates = glm::vec2(1.0f,0.0f);
 		vertices.push_back(v0);
 		vertices.push_back(v1);
 		vertices.push_back(v2);
 
-		Mesh* mesh = new Mesh(vertices, indices);
-
-		return mesh;
+		return Mesh(vertices, indices);
 	}
 
-	Mesh* createPlaneMesh(float x, float y){
+	Mesh createPlaneMesh(float x, float y){
 		std::vector<Vertex> vertices;
 		std::vector<GLuint> indices;
 
@@ -48,14 +49,17 @@ namespace Util{
 		v1.normal = glm::vec3(0.0f,1.0f,0.0f);
 		v2.normal = glm::vec3(0.0f,1.0f,0.0f);
 		v3.normal = glm::vec3(0.0f,1.0f,0.0f);
+		v0.textureCoordinates = glm::vec2(1.0f,0.0f);
+		v1.textureCoordinates = glm::vec2(1.0f,1.0f);
+		v2.textureCoordinates = glm::vec2(0.0f,0.0f);
+		v2.textureCoordinates = glm::vec2(0.0f,1.0f);
+
 		vertices.push_back(v0);
 		vertices.push_back(v1);
 		vertices.push_back(v2);
 		vertices.push_back(v3);
 
-		Mesh* mesh = new Mesh(vertices, indices);
-
-		return mesh;
+		return Mesh(vertices, indices);
 	}
 
 	Mesh processMesh(aiMesh* mesh, const aiScene* scene);

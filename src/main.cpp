@@ -108,26 +108,32 @@ int main(int argc, char *argv[]) {
 	float roughness = 0.5f;
 	float scale = 1.3f;
 	SupersonicGUI* supergui = new SupersonicGUI(mWindow, [&roughness, &shader](float val){ roughness = val; } );
-	Mesh* mesh = Util::createTriangleMesh();
+	Mesh mesh = Util::createTriangleMesh();
 
-	Mesh* plane = Util::createPlaneMesh(100.f,100.f);
+	Mesh plane = Util::createPlaneMesh(100.f,100.f);
 
 
 	GLuint LTCmat, LTCamp;
 	glGenTextures(1, &LTCmat);
-	assert(LTCmat >= 0);
 	glBindTexture(GL_TEXTURE_2D, LTCmat);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA32F, size, size, 0, GL_RGBA, GL_FLOAT, (void*)&invM);
+	glBindTexture(GL_TEXTURE_2D, 0);
 
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA32F, size, size, 0, GL_RGBA, GL_UNSIGNED_BYTE, (void*)&invM);
+	glGenTextures(1, &LTCamp);
+	glBindTexture(GL_TEXTURE_2D, LTCamp);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_R32F, size, size, 0, GL_RGBA, GL_FLOAT, (void*)&tabAmplitude);
 	glBindTexture(GL_TEXTURE_2D, 0);
 
 
-
 	//std::vector<Mesh> cornell = Util::loadFromFile("../assets/CornellBox-Empty-White.obj");
+	//std::vector<Mesh> meshes = Util::loadFromFile("../assets/bunnySmall.obj");
+	std::vector<Mesh> meshes;
+	meshes.push_back(plane);
 
-	std::vector<Mesh> meshes = Util::loadFromFile("../assets/sphere.obj");
 	glm::mat4 meshMat(1.0f);
 
 	glm::vec3 up(0.0f, 1.0f, 0.0f);
@@ -168,7 +174,8 @@ int main(int argc, char *argv[]) {
 		glUniformMatrix4fv(glGetUniformLocation(shader, "v"), 1, GL_FALSE, glm::value_ptr(cameraView));
 		glUniformMatrix4fv(glGetUniformLocation(shader, "mvp"), 1, GL_FALSE, glm::value_ptr(mvp));
 		glUniformMatrix3fv(glGetUniformLocation(shader, "normalMatrix"), 1, GL_FALSE, glm::value_ptr(normalMat));
-		plane->draw();
+
+
 		for (Mesh mesh : meshes) {
 			mesh.draw();
 		}

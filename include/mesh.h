@@ -6,27 +6,28 @@
 #define __MESH_H__
 
 struct Vertex {
-    glm::vec3 position;
-    glm::vec3 normal;
+		glm::vec3 position;
+		glm::vec3 normal;
+		glm::vec2 textureCoordinates;
 };
 
 class Mesh {
 public:
-    std::vector<Vertex> vertices;
-    std::vector<GLuint> indices;
+		std::vector<Vertex> vertices;
+		std::vector<GLuint> indices;
 		Shader shader;
 
-    Mesh(std::vector<Vertex> vertices, std::vector<GLuint> indices) {
-        this->vertices = vertices;
-        this->indices = indices;
-        this->setupMesh();
-    }
+		Mesh(std::vector<Vertex> vertices, std::vector<GLuint> indices) {
+				this->vertices = vertices;
+				this->indices = indices;
+				this->setupMesh();
+		}
 
-    void draw() {
+		void draw() {
 			glBindVertexArray(this->vao);
-      glDrawElements(GL_TRIANGLES, this->indices.size(), GL_UNSIGNED_INT, 0);
-      glBindVertexArray(0);
-    }
+			glDrawElements(GL_TRIANGLES, this->indices.size(), GL_UNSIGNED_INT, 0);
+			glBindVertexArray(0);
+		}
 
 
 private:
@@ -54,6 +55,9 @@ private:
 		glEnableVertexAttribArray(1);
 		glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (GLvoid*)offsetof(Vertex, normal));
 
+		// Vertex Texture Coordinates
+		glEnableVertexAttribArray(2);
+		glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (GLvoid*)offsetof(Vertex, textureCoordinates));
 		glBindVertexArray(0);
 	}
 };
