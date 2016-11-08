@@ -11,17 +11,14 @@
 #include "GL/glew.h"
 class Shader{
 public:
+	GLuint loadShader(const char *vertex_path, const char *fragment_path);
 
-GLuint loadShader(const char *vertex_path, const char *fragment_path);
-
-Shader(const char *vertex_path, const char *fragment_path){
-		this->program = this->loadShader(vertex_path, fragment_path);
-}
-
-operator GLuint() { return program; }
-
-
-GLuint program;
+	Shader() { };
+	Shader(const char *vertex_path, const char *fragment_path){
+			this->program = this->loadShader(vertex_path, fragment_path);
+	}
+	operator GLuint() { return program; }
 private:
+    GLuint program;
 };
 #endif

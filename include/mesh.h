@@ -1,6 +1,6 @@
-
 #include <glm/glm.hpp>
 #include <vector>
+#include "shader.h"
 
 #ifndef __MESH_H__
 #define __MESH_H__
@@ -12,9 +12,9 @@ struct Vertex {
 
 class Mesh {
 public:
-
     std::vector<Vertex> vertices;
     std::vector<GLuint> indices;
+		Shader shader;
 
     Mesh(std::vector<Vertex> vertices, std::vector<GLuint> indices) {
         this->vertices = vertices;

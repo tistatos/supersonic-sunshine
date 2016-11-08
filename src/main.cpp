@@ -92,18 +92,19 @@ int main(int argc, char *argv[]) {
 
 
 	cameraView = glm::lookAt(
-			glm::vec3(0.f, 1.5f, 6.f), glm::vec3(0.f, 0.5f, 0.f), glm::vec3(0.f, 1.f, 0.f)
+			glm::vec3(0.f, 1.5f, 6.f), //position
+			glm::vec3(0.f, 0.5f, 0.f),  // look at
+			glm::vec3(0.f, 1.f, 0.f) // up-vector
 			);
 
 	//fps counter bookkeeping
-	float time_since_update, time = glfwGetTime();
+	float time_since_update, time, lastFrame = glfwGetTime();
 	int frames = 0;
 
 
 	Shader shader("../shaders/simple.vert","../shaders/simple.frag");
-float roughness = 0.5f;
-float scale = 0.3f;
-	glUniform1f(glGetUniformLocation(shader.program, "roughness"), roughness );
+	float roughness = 0.5f;
+	float scale = 0.3f;
 	SupersonicGUI* supergui = new SupersonicGUI(mWindow, [&roughness, &shader](float val){ roughness = val; } );
 	Mesh* mesh = Util::createTriangleMesh();
 
@@ -112,11 +113,28 @@ float scale = 0.3f;
 	//std::vector<Mesh> cornell = Util::loadFromFile("../assets/CornellBox-Empty-White.obj");
 
 	std::vector<Mesh> meshes = Util::loadFromFile("../assets/bunnySmall.obj");
+	glm::mat4 meshMat(1.0);
 
+	glm::vec3 up(0.0f, 1.0f, 0.0f);
+	glm::vec3 right(1.0f, 0.0f, 0.0f);
+	float delta = 0.0f;
 	while (!glfwWindowShouldClose(mWindow)) {
-
+		time = glfwGetTime();
+		delta = time - lastFrame;
 		if(glfwGetKey(mWindow, GLFW_KEY_ESCAPE))
 			glfwSetWindowShouldClose(mWindow, GL_TRUE);
+		if(glfwGetKey(mWindow, GLFW_KEY_A))
+			meshMat = glm::rotate(meshMat, (float)(delta * M_PI/3.0f), up);
+		if(glfwGetKey(mWindow, GLFW_KEY_D))
+			meshMat = glm::rotate(meshMat, (float)(delta * -M_PI/3.0f), up);
+		if(glfwGetKey(mWindow, GLFW_KEY_W))
+			meshMat = glm::rotate(meshMat, (float)(delta * M_PI/3.0f), right);
+		if(glfwGetKey(mWindow, GLFW_KEY_S))
+			meshMat = glm::rotate(meshMat, (float)(delta * -M_PI/3.0f), right);
+		if(glfwGetKey(mWindow, GLFW_KEY_Q))
+			scale += 0.1*delta;
+		if(glfwGetKey(mWindow, GLFW_KEY_E))
+			scale -= 0.1*delta;
 		glEnable(GL_DEPTH_TEST);
 		glEnable(GL_CULL_FACE);
 		/* Render here */
@@ -126,11 +144,13 @@ float scale = 0.3f;
 		/* draw nano GUI */
 
 		glUseProgram(shader);
-		glm::mat4 proj = cameraProjection * cameraView;
-		glUniform1f(glGetUniformLocation(shader.program, "roughness"), roughness );
-		glUniform1f(glGetUniformLocation(shader.program, "scale"), scale );
-		glUniformMatrix4fv(glGetUniformLocation(shader, "mvp"), 1, GL_FALSE, glm::value_ptr(proj));
-		for (Mesh mesh : meshes){
+		glm::mat4 mvp = cameraProjection * cameraView * meshMat;
+		glm::mat4 mv = cameraView * meshMat;
+		glUniform1f(glGetUniformLocation(shader, "roughness"), roughness );
+		glUniform1f(glGetUniformLocation(shader, "scale"), scale );
+		glUniformMatrix4fv(glGetUniformLocation(shader, "mv"), 1, GL_FALSE, glm::value_ptr(mv));
+		glUniformMatrix4fv(glGetUniformLocation(shader, "mvp"), 1, GL_FALSE, glm::value_ptr(mvp));
+		for (Mesh mesh : meshes) {
 			mesh.draw();
 		}
 		// for (Mesh mesh : cornell){
@@ -147,7 +167,6 @@ float scale = 0.3f;
 
 		/* Fps counter handling */
 		frames++;
-		time = glfwGetTime();
 		if (time - time_since_update > 1.0f){
 			int fps = frames/(time - time_since_update);
 			float ms = 1000.0f /frames;
@@ -157,6 +176,7 @@ float scale = 0.3f;
 			frames = 0;
 		}
 
+		lastFrame = time;
 	}
 
 	glfwTerminate();

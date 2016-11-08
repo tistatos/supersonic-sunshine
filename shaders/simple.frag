@@ -2,7 +2,9 @@
 out vec4 color;
 
 in vec3 vNormal;
+in vec4 lightPos;
 in vec3 vPosition;
+in mat4 modelMatrix;
 
 uniform float roughness;
 
@@ -26,12 +28,12 @@ float diffuseReflection(float rough, float albedo, vec3 L, vec3 N, vec3 V){
 	//float A = 1.0/(PI + (PI/2.0 - 2.0/3.0)*(rough+0.000001));
 	//float B = (rough+0.000001)/(PI + (PI/2.0 - 2.0/3.0)*(rough+0.000001));
 
-	return albedo * NdotL * (A+(B*(s/t)));
+	return albedo * clamp(NdotL, 0.0, 1.0) * (A+(B*(s/t)));
 }
 
 void main() {
 	//hårdkodade positioner
-	vec3 lightPos = vec3(6.0,10.0,0.0);
+	vec3 lightPos = vec3(3.0,10.0,3.0);
 	vec3 eyePos = vec3(0.0, 1.5, 6.0);
 
 	vec3 L = normalize(lightPos-vPosition);
