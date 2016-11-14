@@ -5,7 +5,6 @@ layout(location = 1) in vec3 normal;
 layout(location = 2) in vec2 texCoords;
 
 uniform mat4 m;
-uniform mat3 normalMatrix;
 
 layout (std140) uniform Matrices{
     mat4 p;
@@ -17,7 +16,7 @@ out vec3 vPosition;
 out vec2 vTexCoords;
 
 void main() {
-	vNormal = normalMatrix * normal;
+	vNormal = inverse(transpose(mat3(v*m))) * normal;
 	vTexCoords = texCoords;
 	vPosition = (v * m * vec4(vertex,1.0)).xyz;
 	gl_Position = p * v * m * vec4(vertex, 1.0);

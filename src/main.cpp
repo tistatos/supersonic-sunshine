@@ -98,11 +98,17 @@ int main(int argc, char *argv[]) {
 
 
 	Shader shader("../shaders/simple.vert","../shaders/simple.frag");
+	Shader light("../shaders/simple.vert","../shaders/light.frag");
+
 	float roughness = 0.5f;
 
 	SupersonicGUI* supergui = new SupersonicGUI(mWindow, [&roughness, &shader](float val){ roughness = val; } );
 
-	Mesh plane = Util::createPlaneMesh(100.f,100.f);
+	Mesh plane = Util::createPlaneMesh(10.f,10.f);
+	plane.shader = &shader;
+
+	Mesh lightPlane = Util::createPlaneMesh(2.f, 2.f);
+	lightPlane.shader = &light;
 
 
 	GLuint LTCmat, LTCamp;
@@ -125,13 +131,20 @@ int main(int argc, char *argv[]) {
 
 	//std::vector<Mesh> cornell = Util::loadFromFile("../assets/CornellBox-Empty-White.obj");
 	//std::vector<Mesh> meshes = Util::loadFromFile("../assets/bunnySmall.obj");
-	std::vector<Mesh> meshes;
-	meshes.push_back(plane);
-
-	glm::mat4 meshMat(1.0f);
+	std::vector<Mesh*> meshes;
+	meshes.push_back(&plane);
+	meshes.push_back(&lightPlane);
 
 	glm::vec3 up(0.0f, 1.0f, 0.0f);
 	glm::vec3 right(1.0f, 0.0f, 0.0f);
+
+	glm::mat4 meshMat(1.0f);
+	glm::mat4 lightMat(1.0f);
+	lightMat = glm::rotate(lightMat, (float)(M_PI/2.0f), right);
+	lightMat = glm::translate(lightMat, glm::vec3(0.0f, -6.0f, -6.0f));
+
+	lightPlane.setModelMatrix(lightMat);
+
 	float delta = 0.0f;
 	while (!glfwWindowShouldClose(mWindow)) {
 		time = glfwGetTime();
@@ -156,23 +169,14 @@ int main(int argc, char *argv[]) {
 
 		glClear(GL_COLOR_BUFFER_BIT| GL_DEPTH_BUFFER_BIT);
 
-
-		glUseProgram(shader);
 		camera->update();
 		cameraView = camera->getViewMatrix();
-		glm::mat4 mv = cameraView * meshMat;
-		glm::mat3 normalMat = glm::inverseTranspose(glm::mat3(mv));
-		glUniform1f(glGetUniformLocation(shader, "roughness"), roughness );
 
-		glUniformMatrix4fv(glGetUniformLocation(shader, "m"), 1, GL_FALSE, glm::value_ptr(meshMat));
-		glUniformMatrix3fv(glGetUniformLocation(shader, "normalMatrix"), 1, GL_FALSE, glm::value_ptr(normalMat));
+		plane.setModelMatrix(meshMat);
 
-
-		for (Mesh mesh : meshes) {
-			mesh.draw();
+		for (Mesh* mesh : meshes) {
+			mesh->draw();
 		}
-
-		glUseProgram(0);
 
 		supergui->draw();
 
