@@ -11,9 +11,11 @@ Mesh::Mesh(std::vector<Vertex> vertices, std::vector<GLuint> indices) {
 		this->vertices = vertices;
 		this->indices = indices;
 		this->setupMesh();
+		this->model = glm::mat4(1.0f);
 }
 void Mesh::setModelMatrix(glm::mat4 matrix) {
 	this->model = matrix;
+
 }
 
 void Mesh::draw() {

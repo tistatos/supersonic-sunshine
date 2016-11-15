@@ -13,6 +13,14 @@ in mat4 modelMatrix;
 
 uniform sampler2D tex;
 
+struct AreaLight{
+	vec3 points[4];
+	mat4 M;
+	float intensity;
+};
+
+uniform AreaLight arealight;
+
 
 uniform float roughness;
 
@@ -90,22 +98,30 @@ void main() {
 	vec3 pos = vec4(vPosition,1.0).xyz;
 	vec3 points[4];
 
+	points[0] = (v*arealight.M * vec4(arealight.points[0],1.0)).xyz;
+	points[1] =	(v*arealight.M * vec4(arealight.points[1],1.0)).xyz;
+	points[2] =	(v*arealight.M * vec4(arealight.points[2],1.0)).xyz;
+	points[3] =	(v*arealight.M * vec4(arealight.points[3],1.0)).xyz;
+
+/*
 	points[0] = (v*vec4(0.5, 3.0, 0.5,1.0)).xyz;
 	points[1] =	(v*vec4(0.5, 3.0, -0.5,1.0)).xyz;
 	points[2] =	(v*vec4(-0.5, 3.0, -0.5,1.0)).xyz;
 	points[3] =	(v*vec4(-0.5, 3.0, 0.5,1.0)).xyz;
-
+*/
 	vec3 L = normalize(lightPos-pos);
 	vec3 N = normalize(vNormal);
 	vec3 V = normalize(eyePos - pos	);
 
 	// float diffuse = diffuseReflection(roughness, 0.95, L, N, V);
-	float diffuse = arealightDiffuse(N,V,pos, points);
+	float diffuse = arealight.intensity * arealightDiffuse(N,V, pos, points);
 	vec3 fixedNormal = vNormal+1.0;
 	fixedNormal /= 2.0;
 
 	vec4 ltc = texture(tex, vTexCoords);
 
 	color = vec4(vec3(diffuse),1.0);
+	//color = vec4(vec3(points[3].y), 1.0);
+
 	//color = vec4(vec3(debug(N, V, L)), 1.0);
 }

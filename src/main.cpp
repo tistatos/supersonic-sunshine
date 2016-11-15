@@ -33,11 +33,10 @@
 #include "util.h"
 #include "ltc.h"
 #include "Camera.h"
+#include "arealight.h"
 
 #define VSYNC true
 
-glm::mat4 cameraProjection;
-glm::mat4 cameraView;
 Camera *camera;
 
 void windowResizedCallback(GLFWwindow* window, int width, int height) {
@@ -98,18 +97,15 @@ int main(int argc, char *argv[]) {
 
 
 	Shader shader("../shaders/simple.vert","../shaders/simple.frag");
-	Shader light("../shaders/simple.vert","../shaders/light.frag");
 
 	float roughness = 0.5f;
+	AreaLight arealight(0.5f,0.5f, 0.8f);
+
 
 	SupersonicGUI* supergui = new SupersonicGUI(mWindow, [&roughness, &shader](float val){ roughness = val; } );
 
 	Mesh plane = Util::createPlaneMesh(10.f,10.f);
 	plane.shader = &shader;
-
-	Mesh lightPlane = Util::createPlaneMesh(2.f, 2.f);
-	lightPlane.shader = &light;
-
 
 	GLuint LTCmat, LTCamp;
 	glGenTextures(1, &LTCmat);
@@ -133,17 +129,12 @@ int main(int argc, char *argv[]) {
 	//std::vector<Mesh> meshes = Util::loadFromFile("../assets/bunnySmall.obj");
 	std::vector<Mesh*> meshes;
 	meshes.push_back(&plane);
-	meshes.push_back(&lightPlane);
 
 	glm::vec3 up(0.0f, 1.0f, 0.0f);
 	glm::vec3 right(1.0f, 0.0f, 0.0f);
 
 	glm::mat4 meshMat(1.0f);
-	glm::mat4 lightMat(1.0f);
-	lightMat = glm::rotate(lightMat, (float)(M_PI/2.0f), right);
-	lightMat = glm::translate(lightMat, glm::vec3(0.0f, -6.0f, -6.0f));
 
-	lightPlane.setModelMatrix(lightMat);
 
 	float delta = 0.0f;
 	while (!glfwWindowShouldClose(mWindow)) {
@@ -170,13 +161,18 @@ int main(int argc, char *argv[]) {
 		glClear(GL_COLOR_BUFFER_BIT| GL_DEPTH_BUFFER_BIT);
 
 		camera->update();
-		cameraView = camera->getViewMatrix();
+
 
 		plane.setModelMatrix(meshMat);
 
 		for (Mesh* mesh : meshes) {
+
+			arealight.use(*mesh->shader);
 			mesh->draw();
 		}
+
+		arealight.draw();
+
 
 		supergui->draw();
 
