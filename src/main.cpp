@@ -35,10 +35,22 @@
 #include "Camera.h"
 #include "arealight.h"
 
+#include <glm/gtx/rotate_vector.hpp>
+
 #define VSYNC true
 
 Camera *camera;
 
+double oldX;
+double oldY;
+
+void mouseMove(float xdelta, float ydelta){
+	float rotatespeed = 0.005f;
+		camera->mFacing = glm::rotateY(camera->mFacing, -xdelta*rotatespeed);
+		camera->mFacing.y -= rotatespeed*ydelta;
+		glm::normalize(camera->mFacing);
+
+}
 void windowResizedCallback(GLFWwindow* window, int width, int height) {
 	float aspect = (float)width/height;
 	camera->setProjectionMatrix(glm::perspective((float)M_PI/3.0f, aspect, 0.001f, 1000.0f));
@@ -55,6 +67,7 @@ GLFWwindow* createWindow(){
 	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
 	glfwSetErrorCallback([](int code, const char* msg){std::cout << "code: " << code << " msg: " << msg;});
+
 
 	GLFWwindow* window = glfwCreateWindow(vidmode->width/2, vidmode->height/2, "snopp", NULL, NULL);
 
@@ -91,6 +104,8 @@ int main(int argc, char *argv[]) {
 	camera = new Camera(width, height);
 	camera->update();
 
+	glfwGetCursorPos(mWindow,&oldX,&oldY);
+
 	//fps counter bookkeeping
 	float time_since_update, time, lastFrame = glfwGetTime();
 	int frames = 0;
@@ -123,6 +138,7 @@ int main(int argc, char *argv[]) {
 	glBindTexture(GL_TEXTURE_2D, 0);
 
 
+
 	glClearColor(0.f,0.f,0.3f,1.0);
 
 	//std::vector<Mesh> cornell = Util::loadFromFile("../assets/CornellBox-Empty-White.obj");
@@ -135,13 +151,15 @@ int main(int argc, char *argv[]) {
 
 	glm::mat4 meshMat(1.0f);
 
-
 	float delta = 0.0f;
 	while (!glfwWindowShouldClose(mWindow)) {
 		time = glfwGetTime();
 		delta = time - lastFrame;
+
+	GLfloat cameraSpeed = 0.1f;
 		if(glfwGetKey(mWindow, GLFW_KEY_ESCAPE))
 			glfwSetWindowShouldClose(mWindow, GL_TRUE);
+			/*
 		if(glfwGetKey(mWindow, GLFW_KEY_A))
 			meshMat = glm::rotate(meshMat, (float)(delta * M_PI/3.0f), up);
 		if(glfwGetKey(mWindow, GLFW_KEY_D))
@@ -154,6 +172,23 @@ int main(int argc, char *argv[]) {
 			meshMat = glm::scale(meshMat, glm::vec3(1.1f));
 		if(glfwGetKey(mWindow, GLFW_KEY_E))
 			meshMat = glm::scale(meshMat, glm::vec3(0.9f));
+*/
+if(glfwGetKey(mWindow,GLFW_KEY_W))
+        camera->mPosition += cameraSpeed * camera->mFacing;
+    if(glfwGetKey(mWindow,GLFW_KEY_S))
+        camera->mPosition -= cameraSpeed * camera->mFacing;
+    if(glfwGetKey(mWindow,GLFW_KEY_A))
+        camera->mPosition -= glm::normalize(glm::cross(camera->mFacing, glm::vec3(0.f,1.0f,0.0f))) * cameraSpeed;
+    if(glfwGetKey(mWindow,GLFW_KEY_D))
+        camera->mPosition += glm::normalize(glm::cross(camera->mFacing, glm::vec3(0.f,1.0f,0.0f))) * cameraSpeed;
+
+
+	double x,y;
+	glfwGetCursorPos(mWindow,&x,&y);
+	mouseMove(x-oldX,y-oldY);
+	oldX = x;
+	oldY = y;
+
 
 		glEnable(GL_DEPTH_TEST);
 		glEnable(GL_CULL_FACE);
@@ -196,3 +231,5 @@ int main(int argc, char *argv[]) {
 	glfwTerminate();
 	return 0;
 }
+
+

@@ -12,12 +12,14 @@ Camera::Camera(int width, int height)
 {
 	mWidth = width;
 	mHeight = height;
+	mFacing = glm::vec3(0.0f,0.f,-1.0);
+	mPosition = glm::vec3(0,1.5,6.f);
 	float aspect = (float)width/height;
 	matrices.projection = glm::perspective((float)M_PI/3.0f, aspect, 0.001f, 1000.0f);
 	matrices.view = glm::lookAt(
-				glm::vec3(0.f, 1.5f, 6.f), //position
-				glm::vec3(0.f, 0.5f, 0.f),  // look at
-				glm::vec3(0.f, 1.f, 0.f) // up-vector
+			mPosition,
+			mPosition + mFacing,
+			glm::vec3(0.0f, 1.0f,0.0f)
 				);
 
 	//Create uniform buffer:
@@ -29,6 +31,11 @@ Camera::Camera(int width, int height)
 }
 
 void Camera::update(){
+	matrices.view = glm::lookAt(
+			mPosition,
+			mPosition + mFacing,
+			glm::vec3(0.0f, 1.0f,0.0f)
+	 );
 	glBindBuffer(GL_UNIFORM_BUFFER, uboMatrices);
 	GLvoid* p = glMapBuffer(GL_UNIFORM_BUFFER, GL_WRITE_ONLY);
 	assert(p != NULL);

@@ -18,6 +18,9 @@ class Camera
 public:
 	Camera(int width, int height);
 
+	glm::vec3 mPosition;
+	glm::vec3 mFacing;
+
 	void update();
 	inline glm::mat4 getViewMatrix() { return matrices.view; }
 
@@ -26,12 +29,11 @@ public:
 
 	inline glm::vec3 getPosition() {return mPosition;}
 
-	inline void setPosition(glm::vec3 pos) { mPosition = pos; }
+	void setPosition(glm::vec3 pos);
 
 private:
 	camera_matrices matrices;
 	float mWidth, mHeight ;
-	glm::vec3 mPosition;
 	GLuint uboMatrices;
 };
 
