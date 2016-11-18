@@ -1,9 +1,9 @@
 #version 330 core
 
-out vec4 color;
-uniform vec4 lightColor;
+out vec4 out_color;
 
+uniform vec3 color;
 void main() {
-	color = lightColor;
-	color = vec4(1.0);
+
+	out_color = vec4(color, 1.0);
 }

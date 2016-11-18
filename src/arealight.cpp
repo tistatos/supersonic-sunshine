@@ -17,8 +17,11 @@ AreaLight::AreaLight(float x, float y, float intensity){
 	mLightMesh->setModelMatrix(mProperties.model);
 
 
-	Shader* light = new Shader("../shaders/simple.vert","../shaders/light.frag");
-	mLightMesh->shader = light;
+	lightShader = new Shader("../shaders/simple.vert","../shaders/light.frag");
+
+
+
+	mLightMesh->shader = lightShader;
 }
 
 void AreaLight::use(Shader &shader){
@@ -38,6 +41,10 @@ void AreaLight::use(Shader &shader){
 }
 
 void AreaLight::draw(){
+	glUseProgram(*lightShader);
+	glUniform3fv(glGetUniformLocation(*lightShader, "color"), 1,glm::value_ptr(mProperties.color));
+
 	//mLightMesh.setModelMatrix(mProperties.model);
 	mLightMesh->draw();
+	glUseProgram(0);
 }
