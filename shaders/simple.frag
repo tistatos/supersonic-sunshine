@@ -15,6 +15,7 @@ uniform sampler2D ampTex;
 
 struct AreaLight{
 	vec3 points[4];
+	vec3 color;
 	mat4 M;
 	float intensity;
 };
@@ -34,7 +35,7 @@ float IntegrateEdge(vec3 v1, vec3 v2) {
 	return res;
 }
 
-float arealightDiffuse(vec3 N, vec3 V, vec3 P, mat3 mInv, vec3 points[4]) {
+vec3 arealightDiffuse(vec3 N, vec3 V, vec3 P, mat3 mInv, vec3 points[4]) {
 	// construct orthonormal basis around N
 	mat3 Minv = mInv;
 
@@ -64,7 +65,7 @@ float arealightDiffuse(vec3 N, vec3 V, vec3 P, mat3 mInv, vec3 points[4]) {
 
 	sum = max(sum, 0.0);
 
-	return sum;
+	return sum * arealight.color;
 }
 
 // An "improved" Oren-Nayar - see http://mimosa-pudica.net/improved-oren-nayar.html
@@ -119,11 +120,11 @@ void main() {
 			vec3(0.0, ltc.z, 0.0),
 			vec3(ltc.w, 0.0, ltc.x) );
 
-	float spec = arealightDiffuse(N,V,pos, mInv, points);
+	vec3 spec = arealightDiffuse(N,V,pos, mInv, points);
 	float specAmplitude = texture(ampTex, uv).r;
 	spec *= specAmplitude;
 
-	float diffuse = arealightDiffuse(N,V,pos, mat3(1.0), points);
+	vec3 diffuse = arealightDiffuse(N,V,pos, mat3(1.0), points);
 
 	vec3 color = vec3(arealight.intensity)*(spec + diffuse);
 
