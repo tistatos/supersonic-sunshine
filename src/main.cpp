@@ -31,13 +31,11 @@
 #include "shader.h"
 #include "mesh.h"
 #include "util.h"
-#include "ltc.h"
+#include "ltcMaps.h"
 #include "Camera.h"
 
 #define VSYNC true
 
-glm::mat4 cameraProjection;
-glm::mat4 cameraView;
 Camera *camera;
 
 void windowResizedCallback(GLFWwindow* window, int width, int height) {
@@ -57,7 +55,7 @@ GLFWwindow* createWindow(){
 
 	glfwSetErrorCallback([](int code, const char* msg){std::cout << "code: " << code << " msg: " << msg;});
 
-	GLFWwindow* window = glfwCreateWindow(vidmode->width/2, vidmode->height/2, "snopp", NULL, NULL);
+	GLFWwindow* window = glfwCreateWindow(vidmode->width/2, vidmode->height/2, "SuperSonicSunshine", NULL, NULL);
 
 	if (!window) {
 		std::cout << "error creating window";
@@ -104,33 +102,16 @@ int main(int argc, char *argv[]) {
 
 	SupersonicGUI* supergui = new SupersonicGUI(mWindow, [&roughness, &shader](float val){ roughness = val; } );
 
-	Mesh plane = Util::createPlaneMesh(10.f,10.f);
+	Mesh plane = Util::createPlaneMesh(10.f, 10.f);
 	plane.shader = &shader;
 
 	Mesh lightPlane = Util::createPlaneMesh(2.f, 2.f);
 	lightPlane.shader = &light;
 
-
-	GLuint LTCmat, LTCamp;
-	glGenTextures(1, &LTCmat);
-	glBindTexture(GL_TEXTURE_2D, LTCmat);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA32F, size, size, 0, GL_RGBA, GL_FLOAT, (void*)&invM);
-	glBindTexture(GL_TEXTURE_2D, 0);
-
-	glGenTextures(1, &LTCamp);
-	glBindTexture(GL_TEXTURE_2D, LTCamp);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_R32F, size, size, 0, GL_RGBA, GL_FLOAT, (void*)&tabAmplitude);
-	glBindTexture(GL_TEXTURE_2D, 0);
-
+	LTC_t maps = loadLTCTextures();
 
 	glClearColor(0.f,0.f,0.3f,1.0);
 
-	//std::vector<Mesh> cornell = Util::loadFromFile("../assets/CornellBox-Empty-White.obj");
-	//std::vector<Mesh> meshes = Util::loadFromFile("../assets/bunnySmall.obj");
 	std::vector<Mesh*> meshes;
 	meshes.push_back(&plane);
 	meshes.push_back(&lightPlane);
@@ -139,9 +120,10 @@ int main(int argc, char *argv[]) {
 	glm::vec3 right(1.0f, 0.0f, 0.0f);
 
 	glm::mat4 meshMat(1.0f);
+
 	glm::mat4 lightMat(1.0f);
-	lightMat = glm::rotate(lightMat, (float)(M_PI/2.0f), right);
-	lightMat = glm::translate(lightMat, glm::vec3(0.0f, -6.0f, -6.0f));
+	lightMat = glm::rotate(lightMat, (float)(M_PI/2), right);
+	lightMat = glm::translate(lightMat, glm::vec3(0.0f, -3.0f, -2.5f));
 
 	lightPlane.setModelMatrix(lightMat);
 
@@ -164,15 +146,30 @@ int main(int argc, char *argv[]) {
 		if(glfwGetKey(mWindow, GLFW_KEY_E))
 			meshMat = glm::scale(meshMat, glm::vec3(0.9f));
 
+		glm::mat4 cameraMat = camera->getViewMatrix();
+
+		cameraMat = glm::translate(cameraMat, glm::vec3(0.0f, 1.0f, 6.0f));
+		if(glfwGetKey(mWindow, GLFW_KEY_UP)) {
+			cameraMat = glm::rotate(cameraMat, (float)(delta * M_PI/3.0f), right);
+		}
+		if(glfwGetKey(mWindow, GLFW_KEY_DOWN)) {
+			cameraMat = glm::rotate(cameraMat, (float)(delta * -M_PI/3.0f), right);
+		}
+		cameraMat = glm::translate(cameraMat, glm::vec3(0.0f, -1.0f, -6.0f));
+
+		camera->setViewMatrix(cameraMat);
+
 		glEnable(GL_DEPTH_TEST);
 		glEnable(GL_CULL_FACE);
 
 		glClear(GL_COLOR_BUFFER_BIT| GL_DEPTH_BUFFER_BIT);
 
 		camera->update();
-		cameraView = camera->getViewMatrix();
 
 		plane.setModelMatrix(meshMat);
+		plane.setRoughness(roughness);
+
+		bindTextures(&maps);
 
 		for (Mesh* mesh : meshes) {
 			mesh->draw();
@@ -193,7 +190,6 @@ int main(int argc, char *argv[]) {
 			supergui->refresh();
 			frames = 0;
 		}
-
 		lastFrame = time;
 	}
 

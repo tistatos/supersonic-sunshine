@@ -21,12 +21,13 @@ public:
 
 	Mesh(std::vector<Vertex> vertices, std::vector<GLuint> indices);
 	void setModelMatrix(glm::mat4 matrix);
+	void setRoughness(float roughness) { this->roughness = roughness; }
 
 	void draw();
 
 	glm::mat4 model;
 private:
-	float roughness = 0.5f;
+	float roughness = 0.25f;
 	GLuint vao, vbo, ibo;
 	void setupMesh();
 };

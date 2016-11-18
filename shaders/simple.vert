@@ -11,13 +11,13 @@ layout (std140) uniform Matrices{
     mat4 v;
 };
 
-out vec3 vNormal;
-out vec3 vPosition;
+out vec4 vNormal;
+out vec4 vPosition;
 out vec2 vTexCoords;
 
 void main() {
-	vNormal = inverse(transpose(mat3(v*m))) * normal;
+	vNormal = transpose(inverse(m)) * vec4(normal, 1.0);
 	vTexCoords = texCoords;
-	vPosition = (v * m * vec4(vertex,1.0)).xyz;
+	vPosition = (m*vec4(vertex,1.0));
 	gl_Position = p * v * m * vec4(vertex, 1.0);
 }

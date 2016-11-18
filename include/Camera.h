@@ -20,13 +20,14 @@ public:
 
 	void update();
 	inline glm::mat4 getViewMatrix() { return matrices.view; }
+	inline void setViewMatrix(glm::mat4 view) { matrices.view = view; }
 
 	void setProjectionMatrix(glm::mat4 proj) { matrices.projection = proj; }
 	inline glm::mat4 getProjectionMatrix() { return matrices.projection; }
 
 	inline glm::vec3 getPosition() {return mPosition;}
-
 	inline void setPosition(glm::vec3 pos) { mPosition = pos; }
+
 
 private:
 	camera_matrices matrices;

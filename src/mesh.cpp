@@ -19,6 +19,9 @@ void Mesh::setModelMatrix(glm::mat4 matrix) {
 void Mesh::draw() {
 	glUseProgram(*this->shader);
 
+	glUniform1f(glGetUniformLocation(*this->shader, "tex"), 0 );
+	glUniform1f(glGetUniformLocation(*this->shader, "ampTex"), 1 );
+
 	glUniform1f(glGetUniformLocation(*this->shader, "roughness"), roughness );
 	glUniformMatrix4fv(glGetUniformLocation(*this->shader, "m"),
 			1, GL_FALSE, glm::value_ptr(this->model));
