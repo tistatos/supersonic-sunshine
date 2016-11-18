@@ -25,6 +25,8 @@
 #include <iostream>
 #include <fstream>
 #include <vector>
+#include <sstream>
+#include <iomanip>
 
 //local
 #include "SupersonicGui.h"
@@ -116,7 +118,13 @@ int main(int argc, char *argv[]) {
 	AreaLight arealight(0.5f,0.5f, 4.0f);
 
 
-	SupersonicGUI* supergui = new SupersonicGUI(mWindow, [&roughness, &shader](float val){ roughness = val; } );
+	SupersonicGUI* supergui = new SupersonicGUI(mWindow, [&supergui, &roughness](float val){
+			std::ostringstream out;
+			out << std::setprecision(2) << val;
+			supergui->textBox->setValue(out.str());
+			roughness = val;
+
+	} );
 
 	Mesh plane = Util::createPlaneMesh(10.f, 10.f);
 	plane.shader = &shader;

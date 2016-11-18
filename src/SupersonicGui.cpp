@@ -12,10 +12,11 @@ SupersonicGUI::SupersonicGUI(GLFWwindow* window, std::function<void(float)> cb){
 	gui->addVariable("FPS ", fps)->setEditable(false);
 	gui->addVariable("ms ", ms)->setEditable(false);
 
-	this->addSlider("roughness", 0.f, 1.f, cb);
+	this->addSlider("roughness", 0.01f, 1.f, cb);
 	mScreen->setVisible(true);
 	mScreen->performLayout();
 
+	gui->window()->setFixedSize(Eigen::Vector2i(400,200));
 	glfwSetWindowUserPointer(window, reinterpret_cast<void*>(this));
 
 	/** Callback lambda functions **/
@@ -62,12 +63,17 @@ SupersonicGUI::SupersonicGUI(GLFWwindow* window, std::function<void(float)> cb){
 void SupersonicGUI::addSlider(std::string label, float min, float max,const std::function<void(float)> &cb){
 
 		Slider *slider = new Slider(gui->window());
-		slider->setValue(1.0f);
+		slider->setValue(0.25f);
 		slider->setFixedWidth(60);
 		slider->setRange(std::pair<float,float>(min, max));
 		slider->setCallback(cb);
 		gui->addWidget(label, slider);
 
+		TextBox *textBox = new TextBox(gui->window());
+		gui->addWidget("", textBox);
+		textBox->setFixedSize(Vector2i(60, 25));
+		textBox->setValue("0.25");
+		this->textBox = textBox;
 }
 
 void SupersonicGUI::refresh(){

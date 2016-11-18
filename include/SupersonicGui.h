@@ -21,6 +21,7 @@ public:
 	void draw();
 	void refresh();
 
+	TextBox* textBox;
 private:
 	int fps;
 	float ms;
