@@ -8,6 +8,7 @@ in vec4 vPosition;
 in vec4 vNormal;
 in vec2 vTexCoords;
 
+out vec4 finalColor;
 uniform mat4 m;
 uniform sampler2D tex;
 uniform sampler2D ampTex;
@@ -128,5 +129,5 @@ void main() {
 
 	color /=2.0*PI;
 
-	gl_FragColor = vec4(color,1.0);
+	finalColor = vec4(color,1.0);
 }
