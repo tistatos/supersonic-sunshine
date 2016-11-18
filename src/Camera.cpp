@@ -7,7 +7,6 @@
 
 #include "Camera.h"
 
-
 Camera::Camera(int width, int height)
 {
 	mWidth = width;

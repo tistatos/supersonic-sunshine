@@ -11,14 +11,13 @@ AreaLight::AreaLight(float x, float y, float intensity){
 
 	mProperties.model = glm::mat4(1.0f);
 
-	//mProperties.model  = glm::rotate(mProperties.model, (float)(M_PI/2.0f), glm::vec3(1.0f,0.0f,0.0f));
-	mProperties.model  = glm::translate(mProperties.model, glm::vec3(0.0f, 3.0f, 0.0f));
+	mProperties.model  = glm::rotate(mProperties.model, (float)(M_PI/2.0f), glm::vec3(1.0f,0.0f,0.0f));
+	mProperties.model  = glm::translate(mProperties.model, glm::vec3(0.0f, 0.0f, -1.0f));
 	mLightMesh->setModelMatrix(mProperties.model);
 
 
-	Shader light("../shaders/simple.vert","../shaders/light.frag");
-	std::cout << "Light shader compiled" << std::endl;
-	mLightMesh->shader = &light;
+	Shader* light = new Shader("../shaders/simple.vert","../shaders/light.frag");
+	mLightMesh->shader = light;
 }
 
 void AreaLight::use(Shader &shader){
@@ -36,6 +35,6 @@ void AreaLight::use(Shader &shader){
 }
 
 void AreaLight::draw(){
-	mLightMesh->setModelMatrix(mProperties.model);
+	//mLightMesh.setModelMatrix(mProperties.model);
 	mLightMesh->draw();
 }

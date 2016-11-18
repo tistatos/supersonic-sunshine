@@ -30,8 +30,10 @@ void getCompileErrors(GLuint shaderID, const char* filePath) {
 void getLinkingError(GLuint programID, const char* vertexPath, const char* fragPath) {
 	GLint status = 0;
 	glGetProgramiv(programID, GL_LINK_STATUS, &status);
-	if(status == GL_TRUE)
+	if(status == GL_TRUE) {
+		std::cout << "Linking successful" << std::endl;
 		return;
+	}
 
 	char log[4096];
 	glGetProgramInfoLog(programID, sizeof(log), nullptr, log);
@@ -72,7 +74,7 @@ GLuint Shader::loadShader(const char *vertex_path, const char *fragment_path) {
     int logLength;
 
     // Compile vertex shader
-    std::cout << "Compiling vertex shader." << std::endl;
+    std::cout << "Compiling vertex shader: " << vertex_path << std::endl;
     glShaderSource(vertShader, 1, &vertShaderSrc, NULL);
     glCompileShader(vertShader);
 
@@ -80,7 +82,7 @@ GLuint Shader::loadShader(const char *vertex_path, const char *fragment_path) {
 		getCompileErrors(vertShader, vertex_path);
 
     // Compile fragment shader
-    std::cout << "Compiling fragment shader." << std::endl;
+    std::cout << "Compiling fragment shader: " << fragment_path << std::endl;
     glShaderSource(fragShader, 1, &fragShaderSrc, NULL);
     glCompileShader(fragShader);
 

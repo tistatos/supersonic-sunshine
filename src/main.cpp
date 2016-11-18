@@ -113,7 +113,7 @@ int main(int argc, char *argv[]) {
 	Shader shader("../shaders/simple.vert","../shaders/simple.frag");
 
 	float roughness = 0.5f;
-	AreaLight arealight(0.5f,0.5f, 0.8f);
+	AreaLight arealight(0.5f,0.5f, 4.0f);
 
 
 	SupersonicGUI* supergui = new SupersonicGUI(mWindow, [&roughness, &shader](float val){ roughness = val; } );
@@ -137,7 +137,11 @@ int main(int argc, char *argv[]) {
 	lightMat = glm::rotate(lightMat, (float)(M_PI/2), right);
 	lightMat = glm::translate(lightMat, glm::vec3(0.0f, -3.0f, -2.5f));
 
+	glfwSetInputMode(mWindow, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+
 	float delta = 0.0f;
+	bool usingMenu = false;
+	bool mousePressed = false;
 	while (!glfwWindowShouldClose(mWindow)) {
 		time = glfwGetTime();
 		delta = time - lastFrame;
@@ -154,13 +158,29 @@ int main(int argc, char *argv[]) {
     if(glfwGetKey(mWindow,GLFW_KEY_D))
 			camera->mPosition += glm::normalize(glm::cross(camera->mFacing, glm::vec3(0.f,1.0f,0.0f))) * cameraSpeed;
 
+		if(glfwGetMouseButton(mWindow, GLFW_MOUSE_BUTTON_RIGHT)) {
+			if(!mousePressed) {
+				mousePressed = true;
+				if(usingMenu) {
+					glfwSetInputMode(mWindow, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+				}
+				else {
+					glfwSetInputMode(mWindow, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
+				}
+				usingMenu = !usingMenu;
+			}
+		}
+		else {
+			mousePressed = false;
+		}
+
 		double x,y;
 		glfwGetCursorPos(mWindow,&x,&y);
-		mouseMove(x-oldX,y-oldY);
+		if(!usingMenu) {
+			mouseMove(x-oldX,y-oldY);
+		}
 		oldX = x;
 		oldY = y;
-
-
 
 		glEnable(GL_DEPTH_TEST);
 		glEnable(GL_CULL_FACE);

@@ -20,23 +20,14 @@ struct AreaLightProperties {
 
 class AreaLight {
 public:
-
 	AreaLight(float x, float y, float intensity);
-  ~AreaLight(){ delete mLightMesh; };
 
 	void use(Shader& shader);
-
 	void draw();
 
-
 private:
-
 	AreaLightProperties	mProperties;
 	Mesh* mLightMesh;
-
-
-
-
 };
 
 #endif
