@@ -33,11 +33,24 @@
 #include "util.h"
 #include "ltcMaps.h"
 #include "Camera.h"
+#include "arealight.h"
+
+#include <glm/gtx/rotate_vector.hpp>
 
 #define VSYNC true
 
 Camera *camera;
 
+double oldX;
+double oldY;
+
+void mouseMove(float xdelta, float ydelta){
+	float rotatespeed = 0.005f;
+		camera->mFacing = glm::rotateY(camera->mFacing, -xdelta*rotatespeed);
+		camera->mFacing.y -= rotatespeed*ydelta;
+		glm::normalize(camera->mFacing);
+
+}
 void windowResizedCallback(GLFWwindow* window, int width, int height) {
 	float aspect = (float)width/height;
 	camera->setProjectionMatrix(glm::perspective((float)M_PI/3.0f, aspect, 0.001f, 1000.0f));
@@ -90,23 +103,23 @@ int main(int argc, char *argv[]) {
 	camera = new Camera(width, height);
 	camera->update();
 
+	glfwGetCursorPos(mWindow,&oldX,&oldY);
+
 	//fps counter bookkeeping
 	float time_since_update, time, lastFrame = glfwGetTime();
 	int frames = 0;
 
 
 	Shader shader("../shaders/simple.vert","../shaders/simple.frag");
-	Shader light("../shaders/simple.vert","../shaders/light.frag");
 
 	float roughness = 0.5f;
+	AreaLight arealight(0.5f,0.5f, 0.8f);
+
 
 	SupersonicGUI* supergui = new SupersonicGUI(mWindow, [&roughness, &shader](float val){ roughness = val; } );
 
 	Mesh plane = Util::createPlaneMesh(10.f, 10.f);
 	plane.shader = &shader;
-
-	Mesh lightPlane = Util::createPlaneMesh(2.f, 2.f);
-	lightPlane.shader = &light;
 
 	LTC_t maps = loadLTCTextures();
 
@@ -114,7 +127,6 @@ int main(int argc, char *argv[]) {
 
 	std::vector<Mesh*> meshes;
 	meshes.push_back(&plane);
-	meshes.push_back(&lightPlane);
 
 	glm::vec3 up(0.0f, 1.0f, 0.0f);
 	glm::vec3 right(1.0f, 0.0f, 0.0f);
@@ -125,39 +137,30 @@ int main(int argc, char *argv[]) {
 	lightMat = glm::rotate(lightMat, (float)(M_PI/2), right);
 	lightMat = glm::translate(lightMat, glm::vec3(0.0f, -3.0f, -2.5f));
 
-	lightPlane.setModelMatrix(lightMat);
-
 	float delta = 0.0f;
 	while (!glfwWindowShouldClose(mWindow)) {
 		time = glfwGetTime();
 		delta = time - lastFrame;
+
+	GLfloat cameraSpeed = 0.1f;
 		if(glfwGetKey(mWindow, GLFW_KEY_ESCAPE))
 			glfwSetWindowShouldClose(mWindow, GL_TRUE);
-		if(glfwGetKey(mWindow, GLFW_KEY_A))
-			meshMat = glm::rotate(meshMat, (float)(delta * M_PI/3.0f), up);
-		if(glfwGetKey(mWindow, GLFW_KEY_D))
-			meshMat = glm::rotate(meshMat, (float)(delta * -M_PI/3.0f), up);
-		if(glfwGetKey(mWindow, GLFW_KEY_W))
-			meshMat = glm::rotate(meshMat, (float)(delta * M_PI/3.0f), right);
-		if(glfwGetKey(mWindow, GLFW_KEY_S))
-			meshMat = glm::rotate(meshMat, (float)(delta * -M_PI/3.0f), right);
-		if(glfwGetKey(mWindow, GLFW_KEY_Q))
-			meshMat = glm::scale(meshMat, glm::vec3(1.1f));
-		if(glfwGetKey(mWindow, GLFW_KEY_E))
-			meshMat = glm::scale(meshMat, glm::vec3(0.9f));
+		if(glfwGetKey(mWindow,GLFW_KEY_W))
+			camera->mPosition += cameraSpeed * camera->mFacing;
+    if(glfwGetKey(mWindow,GLFW_KEY_S))
+			camera->mPosition -= cameraSpeed * camera->mFacing;
+    if(glfwGetKey(mWindow,GLFW_KEY_A))
+			camera->mPosition -= glm::normalize(glm::cross(camera->mFacing, glm::vec3(0.f,1.0f,0.0f))) * cameraSpeed;
+    if(glfwGetKey(mWindow,GLFW_KEY_D))
+			camera->mPosition += glm::normalize(glm::cross(camera->mFacing, glm::vec3(0.f,1.0f,0.0f))) * cameraSpeed;
 
-		glm::mat4 cameraMat = camera->getViewMatrix();
+		double x,y;
+		glfwGetCursorPos(mWindow,&x,&y);
+		mouseMove(x-oldX,y-oldY);
+		oldX = x;
+		oldY = y;
 
-		cameraMat = glm::translate(cameraMat, glm::vec3(0.0f, 1.0f, 6.0f));
-		if(glfwGetKey(mWindow, GLFW_KEY_UP)) {
-			cameraMat = glm::rotate(cameraMat, (float)(delta * M_PI/3.0f), right);
-		}
-		if(glfwGetKey(mWindow, GLFW_KEY_DOWN)) {
-			cameraMat = glm::rotate(cameraMat, (float)(delta * -M_PI/3.0f), right);
-		}
-		cameraMat = glm::translate(cameraMat, glm::vec3(0.0f, -1.0f, -6.0f));
 
-		camera->setViewMatrix(cameraMat);
 
 		glEnable(GL_DEPTH_TEST);
 		glEnable(GL_CULL_FACE);
@@ -172,8 +175,11 @@ int main(int argc, char *argv[]) {
 		bindTextures(&maps);
 
 		for (Mesh* mesh : meshes) {
+			arealight.use(*mesh->shader);
 			mesh->draw();
 		}
+		arealight.draw();
+
 
 		supergui->draw();
 

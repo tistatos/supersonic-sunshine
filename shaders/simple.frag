@@ -13,55 +13,63 @@ in vec2 vTexCoords;
 uniform mat4 m;
 uniform sampler2D tex;
 uniform sampler2D ampTex;
+
+struct AreaLight{
+	vec3 points[4];
+	mat4 M;
+	float intensity;
+};
+
+uniform AreaLight arealight;
+
 uniform float roughness;
 
 #define PI 3.14159265359
 
 
-float IntegrateEdge(vec3 v1, vec3 v2)
-{
-    float cosTheta = dot(v1, v2);
-    float theta = acos(cosTheta);
-    float res = cross(v1, v2).z * ((theta > 0.001) ? theta/sin(theta) : 1.0);
+float IntegrateEdge(vec3 v1, vec3 v2) {
+	float cosTheta = dot(v1, v2);
+	float theta = acos(cosTheta);
+	float res = cross(v1, v2).z * ((theta > 0.001) ? theta/sin(theta) : 1.0);
 
-    return res;
+	return res;
 }
 
-float arealightDiffuse(vec3 N, vec3 V, vec3 P, mat3 mInv, vec3 points[4]){
-		// construct orthonormal basis around N
-		mat3 Minv = mInv;
+float arealightDiffuse(vec3 N, vec3 V, vec3 P, mat3 mInv, vec3 points[4]) {
+	// construct orthonormal basis around N
+	mat3 Minv = mInv;
 
-    vec3 T1, T2;
-    T1 = normalize(V - N*dot(V, N));
-    T2 = cross(N, T1);
+	vec3 T1, T2;
+	T1 = normalize(V - N*dot(V, N));
+	T2 = cross(N, T1);
 
-    Minv = Minv * transpose(mat3(T1, T2, N));
-		vec3 L[4];
-    L[0] = Minv * (points[0] - P);
-    L[1] = Minv * (points[1] - P);
-    L[2] = Minv * (points[2] - P);
-		L[3] = Minv * (points[3] - P);
+	Minv = Minv * transpose(mat3(T1, T2, N));
+	vec3 L[4];
+	L[0] = Minv * (points[0] - P);
+	L[1] = Minv * (points[1] - P);
+	L[2] = Minv * (points[2] - P);
+	L[3] = Minv * (points[3] - P);
 
 
-    L[0] = normalize(L[0]);
-    L[1] = normalize(L[1]);
-    L[2] = normalize(L[2]);
-		L[3] = normalize(L[3]);
-		 // integrate
-    float sum = 0.0;
+	L[0] = normalize(L[0]);
+	L[1] = normalize(L[1]);
+	L[2] = normalize(L[2]);
+	L[3] = normalize(L[3]);
+	 // integrate
+	float sum = 0.0;
 
-    sum += IntegrateEdge(L[0], L[1]);
-    sum += IntegrateEdge(L[1], L[2]);
-		sum += IntegrateEdge(L[2], L[3]);
-		sum += IntegrateEdge(L[3], L[0]);
+	sum += IntegrateEdge(L[0], L[1]);
+	sum += IntegrateEdge(L[1], L[2]);
+	sum += IntegrateEdge(L[2], L[3]);
+	sum += IntegrateEdge(L[3], L[0]);
 
-		sum = max(sum, 0.0);
+	sum = max(sum, 0.0);
 
-		return sum;
+	return sum;
 }
 
 // An "improved" Oren-Nayar - see http://mimosa-pudica.net/improved-oren-nayar.html
-float diffuseReflection(float rough, float albedo, vec3 L, vec3 N, vec3 V){
+float diffuseReflection(float rough, float albedo, vec3 L, vec3 N, vec3 V) {
 	float NdotL = dot(N,L);
 	float NdotV = dot(N,V);
 
@@ -69,7 +77,8 @@ float diffuseReflection(float rough, float albedo, vec3 L, vec3 N, vec3 V){
 	float t;
 	if (s > 0.00) {
 		t = max(NdotL, NdotV);
-	} else {
+	}
+	else {
 		t = 1;
 	}
 	float roughsq = rough*rough;
@@ -87,15 +96,13 @@ void main() {
 	vec3 pos = vPosition.xyz;
 	vec3 points[4];
 
-	points[1] = vec3(-2.0, 3.5, -3.0);
-
-	points[0] =	vec3(-2.0, 1.5, -3.0);
-	points[2] =	vec3(2.0, 3.5, -3.0);
-
-	points[3] =	vec3(2.0, 1.5, -3.0);
+	points[0] = (arealight.M * vec4(arealight.points[0],1.0)).xyz;
+	points[1] =	(arealight.M * vec4(arealight.points[1],1.0)).xyz;
+	points[2] =	(arealight.M * vec4(arealight.points[2],1.0)).xyz;
+	points[3] =	(arealight.M * vec4(arealight.points[3],1.0)).xyz;
 
 	vec3 N = normalize(vNormal.xyz);
-	vec3 V = normalize(eyePos - pos);
+	vec3 V = normalize(eyePos - pos	);
 
 	float theta = acos(dot(V,N));
 	vec2 uv = vec2(roughness, theta/(0.5*PI));
@@ -117,9 +124,6 @@ void main() {
 	float specAmplitude = texture(ampTex, uv).r;
 	spec *= specAmplitude;
 
-	float diffuse = arealightDiffuse(N,V,pos, mat3(1.0), points);
-
-	color = vec4(vec3(ltc), 1.0);
-
+	float diffuse = arealight.intensity * arealightDiffuse(N,V,pos, mat3(1.0), points);
 	color = vec4(vec3(diffuse+spec),1.0);
 }
