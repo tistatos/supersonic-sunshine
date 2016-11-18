@@ -193,7 +193,7 @@ void fitTab(mat3 * tab, vec2 * tabAmplitude, const int N, const Brdf& brdf)
 	LTC ltc;
 
 	// loop over theta and alpha
-	#pragma omp parallel for collapse(2)
+	//#pragma omp parallel for collapse(2)
 	for(int a = N-1 ; a >= 0   ; --a)
 	for(int t =   0 ; t <= N-1 ; ++t) {
 		float theta = std::min<float>(1.57f, t / float(N-1) * 1.57079f);

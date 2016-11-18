@@ -21,6 +21,11 @@ void writeSuperSonic(mat3* tab, vec2* tabAmplitude, int N) {
 		float c = m[1][1];
 		float d = m[2][0];
 
+		// Rescaled inverse of m:
+		// a 0 b   inverse   1      0      -b
+		// 0 c 0     ==>     0 (a - b*d)/c  0
+		// d 0 1            -d      0       a
+
 		float x =  a;
 		float y = -b;
 		float z = (a - b*d) / c;
