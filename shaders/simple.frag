@@ -10,6 +10,7 @@ in vec2 vTexCoords;
 
 out vec4 finalColor;
 uniform mat4 m;
+
 uniform sampler2D tex;
 uniform sampler2D ampTex;
 
@@ -65,7 +66,7 @@ vec3 arealightDiffuse(vec3 N, vec3 V, vec3 P, mat3 mInv, vec3 points[4]) {
 
 	sum = max(sum, 0.0);
 
-	return sum * arealight.color;
+	return vec3(sum);
 }
 
 // An "improved" Oren-Nayar - see http://mimosa-pudica.net/improved-oren-nayar.html
@@ -127,7 +128,6 @@ void main() {
 	vec3 diffuse = arealightDiffuse(N,V,pos, mat3(1.0), points);
 
 	vec3 color = vec3(arealight.intensity)*(spec + diffuse);
-
 	color /=2.0*PI;
 
 	finalColor = vec4(color,1.0);

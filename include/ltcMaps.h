@@ -34,17 +34,21 @@ LTC_t loadLTCTextures() {
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 	glTexImage2D(GL_TEXTURE_2D, 0, GL_R32F, size, size, 0, GL_RED, GL_FLOAT, (void*)&tabAmplitude);
 
-
 	return maps;
 }
 
 void bindTextures(LTC_t* maps) {
-	GLint activeTexture;
-	glGetIntegerv(GL_ACTIVE_TEXTURE, &activeTexture);
-	maps->materialIndex = activeTexture;
-	glBindTexture(GL_TEXTURE_2D, maps->material);
-	glActiveTexture(++activeTexture);
-	maps->amplitudeIndex = activeTexture;
+	//GLint activeTexture;
+	//glGetIntegerv(GL_ACTIVE_TEXTURE, &activeTexture);
+	//maps->materialIndex = activeTexture;
+	//glBindTexture(GL_TEXTURE_2D, maps->material);
+	//glActiveTexture(++activeTexture);
+	//maps->amplitudeIndex = activeTexture;
+	//glBindTexture(GL_TEXTURE_2D, maps->amplitude);
+
+	glActiveTexture(GL_TEXTURE1);
 	glBindTexture(GL_TEXTURE_2D, maps->amplitude);
+	glActiveTexture(GL_TEXTURE0);
+	glBindTexture(GL_TEXTURE_2D, maps->material);
 }
 #endif

@@ -115,7 +115,7 @@ int main(int argc, char *argv[]) {
 	Shader shader("../shaders/simple.vert","../shaders/simple.frag");
 
 	float roughness = 0.5f;
-	AreaLight arealight(0.5f,0.5f, 4.0f);
+	AreaLight arealight(0.5f,0.5f, 2.0f);
 
 
 	SupersonicGUI* supergui = new SupersonicGUI(mWindow, [&supergui, &roughness](float val){
@@ -123,7 +123,6 @@ int main(int argc, char *argv[]) {
 			out << std::setprecision(2) << val;
 			supergui->textBox->setValue(out.str());
 			roughness = val;
-
 	} );
 
 	Mesh plane = Util::createPlaneMesh(10.f, 10.f);

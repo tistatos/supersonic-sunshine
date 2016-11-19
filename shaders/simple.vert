@@ -18,6 +18,6 @@ out vec2 vTexCoords;
 void main() {
 	vNormal = transpose(inverse(m)) * vec4(normal, 1.0);
 	vTexCoords = texCoords;
-	vPosition = (m*vec4(vertex,1.0));
+	vPosition = (m * vec4(vertex,1.0));
 	gl_Position = p * v * m * vec4(vertex, 1.0);
 }
