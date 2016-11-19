@@ -14,6 +14,8 @@ uniform mat4 m;
 uniform sampler2D tex;
 uniform sampler2D ampTex;
 
+uniform sampler2D bumpMap;
+
 struct AreaLight{
 	vec3 points[4];
 	vec3 color;
@@ -29,6 +31,116 @@ uniform float roughness;
 
 #define PI 3.14159265359
 
+void ClipQuadToHorizon(inout vec3 L[5], out int n)
+{
+    // detect clipping config
+    int config = 0;
+    if (L[0].z > 0.0) config += 1;
+    if (L[1].z > 0.0) config += 2;
+    if (L[2].z > 0.0) config += 4;
+    if (L[3].z > 0.0) config += 8;
+
+    // clip
+    n = 0;
+
+    if (config == 0)
+    {
+        // clip all
+    }
+    else if (config == 1) // V1 clip V2 V3 V4
+    {
+        n = 3;
+        L[1] = -L[1].z * L[0] + L[0].z * L[1];
+        L[2] = -L[3].z * L[0] + L[0].z * L[3];
+    }
+    else if (config == 2) // V2 clip V1 V3 V4
+    {
+        n = 3;
+        L[0] = -L[0].z * L[1] + L[1].z * L[0];
+        L[2] = -L[2].z * L[1] + L[1].z * L[2];
+    }
+    else if (config == 3) // V1 V2 clip V3 V4
+    {
+        n = 4;
+        L[2] = -L[2].z * L[1] + L[1].z * L[2];
+        L[3] = -L[3].z * L[0] + L[0].z * L[3];
+    }
+    else if (config == 4) // V3 clip V1 V2 V4
+    {
+        n = 3;
+        L[0] = -L[3].z * L[2] + L[2].z * L[3];
+        L[1] = -L[1].z * L[2] + L[2].z * L[1];
+    }
+    else if (config == 5) // V1 V3 clip V2 V4) impossible
+    {
+        n = 0;
+    }
+    else if (config == 6) // V2 V3 clip V1 V4
+    {
+        n = 4;
+        L[0] = -L[0].z * L[1] + L[1].z * L[0];
+        L[3] = -L[3].z * L[2] + L[2].z * L[3];
+    }
+    else if (config == 7) // V1 V2 V3 clip V4
+    {
+        n = 5;
+        L[4] = -L[3].z * L[0] + L[0].z * L[3];
+        L[3] = -L[3].z * L[2] + L[2].z * L[3];
+    }
+    else if (config == 8) // V4 clip V1 V2 V3
+    {
+        n = 3;
+        L[0] = -L[0].z * L[3] + L[3].z * L[0];
+        L[1] = -L[2].z * L[3] + L[3].z * L[2];
+        L[2] =  L[3];
+    }
+    else if (config == 9) // V1 V4 clip V2 V3
+    {
+        n = 4;
+        L[1] = -L[1].z * L[0] + L[0].z * L[1];
+        L[2] = -L[2].z * L[3] + L[3].z * L[2];
+    }
+    else if (config == 10) // V2 V4 clip V1 V3) impossible
+    {
+        n = 0;
+    }
+    else if (config == 11) // V1 V2 V4 clip V3
+    {
+        n = 5;
+        L[4] = L[3];
+        L[3] = -L[2].z * L[3] + L[3].z * L[2];
+        L[2] = -L[2].z * L[1] + L[1].z * L[2];
+    }
+    else if (config == 12) // V3 V4 clip V1 V2
+    {
+        n = 4;
+        L[1] = -L[1].z * L[2] + L[2].z * L[1];
+        L[0] = -L[0].z * L[3] + L[3].z * L[0];
+    }
+    else if (config == 13) // V1 V3 V4 clip V2
+    {
+        n = 5;
+        L[4] = L[3];
+        L[3] = L[2];
+        L[2] = -L[1].z * L[2] + L[2].z * L[1];
+        L[1] = -L[1].z * L[0] + L[0].z * L[1];
+    }
+    else if (config == 14) // V2 V3 V4 clip V1
+    {
+        n = 5;
+        L[4] = -L[0].z * L[3] + L[3].z * L[0];
+        L[0] = -L[0].z * L[1] + L[1].z * L[0];
+    }
+    else if (config == 15) // V1 V2 V3 V4
+    {
+        n = 4;
+    }
+
+    if (n == 3)
+        L[3] = L[0];
+    if (n == 4)
+        L[4] = L[0];
+}
 
 float IntegrateEdge(vec3 v1, vec3 v2) {
 	float cosTheta = dot(v1, v2);
@@ -47,12 +159,25 @@ vec3 arealightDiffuse(vec3 N, vec3 V, vec3 P, mat3 mInv, vec3 points[4]) {
 	T2 = cross(N, T1);
 
 	Minv = Minv * transpose(mat3(T1, T2, N));
-	vec3 L[4];
+
+	vec3 L[5];
 	L[0] = Minv * (points[0] - P);
 	L[1] = Minv * (points[1] - P);
 	L[2] = Minv * (points[2] - P);
 	L[3] = Minv * (points[3] - P);
 
+	int n;
+	ClipQuadToHorizon(L, n);
+
+	if (n == 0)
+			return vec3(0, 0, 0);
+
+    // project onto sphere
+    L[0] = normalize(L[0]);
+    L[1] = normalize(L[1]);
+    L[2] = normalize(L[2]);
+    L[3] = normalize(L[3]);
+    L[4] = normalize(L[4]);
 
 	L[0] = normalize(L[0]);
 	L[1] = normalize(L[1]);
@@ -64,35 +189,14 @@ vec3 arealightDiffuse(vec3 N, vec3 V, vec3 P, mat3 mInv, vec3 points[4]) {
 	sum += IntegrateEdge(L[0], L[1]);
 	sum += IntegrateEdge(L[1], L[2]);
 	sum += IntegrateEdge(L[2], L[3]);
-	sum += IntegrateEdge(L[3], L[0]);
-
+	if (n >= 4)
+        sum += IntegrateEdge(L[3], L[4]);
+    if (n == 5)
+        sum += IntegrateEdge(L[4], L[0]);
 	sum = max(sum, 0.0);
 
 	return vec3(sum);
 }
-
-// An "improved" Oren-Nayar - see http://mimosa-pudica.net/improved-oren-nayar.html
-/*float diffuseReflection(float rough, float albedo, vec3 L, vec3 N, vec3 V) {*/
-	/*float NdotL = dot(N,L);*/
-	/*float NdotV = dot(N,V);*/
-
-	/*float s = dot(L,V) - (NdotL*NdotV);*/
-	/*float t;*/
-	/*if (s > 0.00) {*/
-		/*t = max(NdotL, NdotV);*/
-	/*}*/
-	/*else {*/
-		/*t = 1;*/
-	/*}*/
-	/*float roughsq = rough*rough;*/
-
-	/*float A = 0.3183*(1.0 - (0.5*roughsq/(roughsq+0.33) ) + (0.17*albedo*roughsq/(roughsq+0.13)));*/
-	/*float B = 0.3183*(0.45*(roughsq/(roughsq+0.09)));*/
-	/*//float A = 1.0/(PI + (PI/2.0 - 2.0/3.0)*(rough+0.000001));*/
-	/*//float B = (rough+0.000001)/(PI + (PI/2.0 - 2.0/3.0)*(rough+0.000001));*/
-
-	/*return albedo * clamp(NdotL, 0.0, 1.0) * (A+(B*(s/t)));*/
-/*}*/
 
 void main() {
 	vec3 eyePos = (inverse(v) * vec4(vec3(0), 1.0)).xyz;
