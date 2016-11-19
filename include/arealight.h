@@ -27,6 +27,7 @@ public:
 	void draw();
 
 private:
+Shader* lightShader;
 	AreaLightProperties	mProperties;
 	Mesh* mLightMesh;
 };

@@ -12,6 +12,9 @@ Mesh::Mesh(std::vector<Vertex> vertices, std::vector<GLuint> indices) {
 		this->indices = indices;
 		this->setupMesh();
 		this->model = glm::mat4(1.0f);
+
+		this->diffuseColor = glm::vec3(1.f,1.f,1.f);
+		this->specularColor = glm::vec3(1.f,1.f,1.f);
 }
 void Mesh::setModelMatrix(glm::mat4 matrix) {
 	this->model = matrix;
@@ -26,6 +29,9 @@ void Mesh::draw() {
 	glUniform1f(glGetUniformLocation(*this->shader, "roughness"), roughness );
 	glUniformMatrix4fv(glGetUniformLocation(*this->shader, "m"),
 			1, GL_FALSE, glm::value_ptr(this->model));
+
+	glUniform3fv(glGetUniformLocation(*shader, "diffuseColor"), 1,glm::value_ptr(diffuseColor));
+	glUniform3fv(glGetUniformLocation(*shader, "specularColor"), 1,glm::value_ptr(specularColor));
 
 	glBindVertexArray(this->vao);
 	glDrawElements(GL_TRIANGLES, this->indices.size(), GL_UNSIGNED_INT, 0);

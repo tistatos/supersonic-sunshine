@@ -23,6 +23,8 @@ struct AreaLight{
 
 uniform AreaLight arealight;
 
+uniform vec3 diffuseColor;
+uniform vec3 specularColor;
 uniform float roughness;
 
 #define PI 3.14159265359
@@ -127,8 +129,10 @@ void main() {
 
 	vec3 diffuse = arealightDiffuse(N,V,pos, mat3(1.0), points);
 
-	vec3 color = vec3(arealight.intensity)*(spec + diffuse);
-	color /=2.0*PI;
+	vec3 color = vec3(arealight.intensity)*(specularColor * arealight.color * spec + diffuseColor *
+			arealight.color  * diffuse);
+
+	color /=(2.0*PI);
 
 	finalColor = vec4(color,1.0);
 }

@@ -115,7 +115,7 @@ int main(int argc, char *argv[]) {
 	Shader shader("../shaders/simple.vert","../shaders/simple.frag");
 
 	float roughness = 0.5f;
-	AreaLight arealight(0.5f,0.5f, 2.0f);
+	AreaLight arealight(4.0f,4.0f, 4.0f);
 
 
 	SupersonicGUI* supergui = new SupersonicGUI(mWindow, [&supergui, &roughness](float val){
@@ -125,7 +125,7 @@ int main(int argc, char *argv[]) {
 			roughness = val;
 	} );
 
-	Mesh plane = Util::createPlaneMesh(10.f, 10.f);
+	Mesh plane = Util::createPlaneMesh(40.f, 40.f);
 	plane.shader = &shader;
 
 	LTC_t maps = loadLTCTextures();

@@ -9,16 +9,16 @@ AreaLight::AreaLight(float x, float y, float intensity){
 	mProperties.points[3] = glm::vec3(-x, 0.f, y);
 	mProperties.intensity = intensity;
 
-	mProperties.color = glm::vec3(1.f,0.6f,0.6f);
+	mProperties.color = glm::vec3(1.f,1.0f,1.0f);
 	mProperties.model = glm::mat4(1.0f);
 
 	mProperties.model  = glm::rotate(mProperties.model, (float)(M_PI/2.0f), glm::vec3(1.0f,0.0f,0.0f));
-	mProperties.model  = glm::translate(mProperties.model, glm::vec3(0.0f, 0.0f, -1.0f));
+	mProperties.model  = glm::translate(mProperties.model, glm::vec3(0.0f, -5.0f, -5.5f));
 	mLightMesh->setModelMatrix(mProperties.model);
 
+	lightShader = new Shader("../shaders/simple.vert","../shaders/light.frag");
 
-	Shader* light = new Shader("../shaders/simple.vert","../shaders/light.frag");
-	mLightMesh->shader = light;
+	mLightMesh->shader = lightShader;
 }
 
 void AreaLight::use(Shader &shader){
@@ -38,6 +38,10 @@ void AreaLight::use(Shader &shader){
 }
 
 void AreaLight::draw(){
+	glUseProgram(*lightShader);
+	glUniform3fv(glGetUniformLocation(*lightShader, "color"), 1,glm::value_ptr(mProperties.color));
+
 	//mLightMesh.setModelMatrix(mProperties.model);
 	mLightMesh->draw();
+	glUseProgram(0);
 }

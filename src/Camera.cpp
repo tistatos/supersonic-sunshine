@@ -12,7 +12,7 @@ Camera::Camera(int width, int height)
 	mWidth = width;
 	mHeight = height;
 	mFacing = glm::vec3(0.0f,0.f,-1.0);
-	mPosition = glm::vec3(0,1.5,6.f);
+	mPosition = glm::vec3(0,4.5,28.f);
 	float aspect = (float)width/height;
 	matrices.projection = glm::perspective((float)M_PI/3.0f, aspect, 0.001f, 1000.0f);
 	matrices.view = glm::lookAt(

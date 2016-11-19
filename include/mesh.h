@@ -31,6 +31,8 @@ public:
 	glm::mat4 model;
 private:
 	float roughness = 0.25f;
+	glm::vec3 diffuseColor;
+	glm::vec3 specularColor;
 	GLuint vao, vbo, ibo;
 	void setupMesh();
 };
