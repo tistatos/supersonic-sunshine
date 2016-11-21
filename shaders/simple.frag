@@ -13,6 +13,7 @@ uniform mat4 m;
 
 uniform sampler2D tex;
 uniform sampler2D ampTex;
+uniform sampler2D bumpMap;
 
 uniform AreaLight arealight;
 
