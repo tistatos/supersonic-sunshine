@@ -164,6 +164,8 @@ int main(int argc, char *argv[]) {
 			camera->mPosition -= glm::normalize(glm::cross(camera->mFacing, glm::vec3(0.f,1.0f,0.0f))) * cameraSpeed;
     if(glfwGetKey(mWindow,GLFW_KEY_D))
 			camera->mPosition += glm::normalize(glm::cross(camera->mFacing, glm::vec3(0.f,1.0f,0.0f))) * cameraSpeed;
+    if(glfwGetKey(mWindow,GLFW_KEY_F5))
+			shader.reload();
 
 		if(glfwGetMouseButton(mWindow, GLFW_MOUSE_BUTTON_RIGHT)) {
 			if(!mousePressed) {
