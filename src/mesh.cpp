@@ -8,17 +8,17 @@
 #include <iostream>
 
 Mesh::Mesh(std::vector<Vertex> vertices, std::vector<GLuint> indices) {
-		this->vertices = vertices;
-		this->indices = indices;
-		this->setupMesh();
-		this->model = glm::mat4(1.0f);
+	this->vertices = vertices;
+	this->indices = indices;
+	this->setupMesh();
+	this->model = glm::mat4(1.0f);
 
-		this->diffuseColor = glm::vec3(1.f,1.f,1.f);
-		this->specularColor = glm::vec3(1.f,1.f,1.f);
+	this->diffuseColor = glm::vec3(1.f,1.f,1.f);
+	this->specularColor = glm::vec3(1.f,1.f,1.f);
 }
+
 void Mesh::setModelMatrix(glm::mat4 matrix) {
 	this->model = matrix;
-
 }
 
 void Mesh::draw() {

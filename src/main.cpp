@@ -46,11 +46,11 @@ Camera *camera;
 double oldX;
 double oldY;
 
-void mouseMove(float xdelta, float ydelta){
+void mouseMove(float xdelta, float ydelta) {
 	float rotatespeed = 0.005f;
-		camera->mFacing = glm::rotateY(camera->mFacing, -xdelta*rotatespeed);
-		camera->mFacing.y -= rotatespeed*ydelta;
-		glm::normalize(camera->mFacing);
+	camera->mFacing = glm::rotateY(camera->mFacing, -xdelta*rotatespeed);
+	camera->mFacing.y -= rotatespeed*ydelta;
+	glm::normalize(camera->mFacing);
 
 }
 void windowResizedCallback(GLFWwindow* window, int width, int height) {
@@ -59,7 +59,7 @@ void windowResizedCallback(GLFWwindow* window, int width, int height) {
 }
 
 /* Inits a GLFW Window with OpenGL 3.3. Make sure glfwInit has been called */
-GLFWwindow* createWindow(){
+GLFWwindow* createWindow() {
 	GLFWmonitor* monitor = glfwGetPrimaryMonitor();
 	const GLFWvidmode* vidmode = glfwGetVideoMode(monitor);
 
@@ -68,7 +68,7 @@ GLFWwindow* createWindow(){
 	glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
 	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
-	glfwSetErrorCallback([](int code, const char* msg){std::cout << "code: " << code << " msg: " << msg;});
+	glfwSetErrorCallback([](int code, const char* msg) {std::cout << "code: " << code << " msg: " << msg;});
 
 	GLFWwindow* window = glfwCreateWindow(vidmode->width/2, vidmode->height/2, "SuperSonicSunshine", NULL, NULL);
 
@@ -118,7 +118,7 @@ int main(int argc, char *argv[]) {
 	AreaLight arealight(4.0f,4.0f, 4.0f);
 
 
-	SupersonicGUI* supergui = new SupersonicGUI(mWindow, [&supergui, &roughness](float val){
+	SupersonicGUI* supergui = new SupersonicGUI(mWindow, [&supergui, &roughness](float val) {
 			std::ostringstream out;
 			out << std::setprecision(2) << val;
 			supergui->textBox->setValue(out.str());
@@ -153,7 +153,7 @@ int main(int argc, char *argv[]) {
 		time = glfwGetTime();
 		delta = time - lastFrame;
 
-	GLfloat cameraSpeed = 0.1f;
+		GLfloat cameraSpeed = 0.1f;
 		if(glfwGetKey(mWindow, GLFW_KEY_ESCAPE))
 			glfwSetWindowShouldClose(mWindow, GL_TRUE);
 		if(glfwGetKey(mWindow,GLFW_KEY_W))
@@ -215,7 +215,7 @@ int main(int argc, char *argv[]) {
 
 		/* Fps counter handling */
 		frames++;
-		if (time - time_since_update > 1.0f){
+		if (time - time_since_update > 1.0f) {
 			int fps = frames/(time - time_since_update);
 			float ms = 1000.0f /frames;
 			supergui->setFrameMetrics(fps, ms);

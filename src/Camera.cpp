@@ -34,7 +34,7 @@ void Camera::update(){
 			mPosition,
 			mPosition + mFacing,
 			glm::vec3(0.0f, 1.0f,0.0f)
-	 );
+	);
 	glBindBuffer(GL_UNIFORM_BUFFER, uboMatrices);
 	GLvoid* p = glMapBuffer(GL_UNIFORM_BUFFER, GL_WRITE_ONLY);
 	assert(p != NULL);

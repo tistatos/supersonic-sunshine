@@ -33,7 +33,7 @@ namespace Util{
 		return Mesh(vertices, indices);
 	}
 
-	Mesh createPlaneMesh(float x, float y){
+	Mesh createPlaneMesh(float x, float y) {
 		std::vector<Vertex> vertices;
 		std::vector<GLuint> indices;
 
@@ -65,7 +65,7 @@ namespace Util{
 		return Mesh(vertices, indices);
 	}
 
-	Mesh* createPlaneMeshPointer(float x, float y){
+	Mesh* createPlaneMeshPointer(float x, float y) {
 		std::vector<Vertex> vertices;
 		std::vector<GLuint> indices;
 
@@ -97,9 +97,9 @@ namespace Util{
 		return new Mesh(vertices, indices);
 	}
 
-std::vector<Mesh> loadFromFile(std::string path) {
-				std::vector<Mesh> meshes;
-				Assimp::Importer importer;
+	std::vector<Mesh> loadFromFile(std::string path) {
+		std::vector<Mesh> meshes;
+		Assimp::Importer importer;
 		const aiScene* scene = importer.ReadFile(path, aiProcess_Triangulate | aiProcess_GenSmoothNormals );
 		if(!scene || scene->mFlags == AI_SCENE_FLAGS_INCOMPLETE || !scene->mRootNode) {// if is Not Zero {
 			std::cout << "ERROR::ASSIMP:: " << importer.GetErrorString() <<std::endl;
@@ -109,10 +109,9 @@ std::vector<Mesh> loadFromFile(std::string path) {
 		// Process ASSIMP's root node recursively
 		processNode(scene->mRootNode, scene, meshes);
 
-				return meshes;
+		return meshes;
 	}
-	void processNode(aiNode* node, const aiScene* scene, std::vector<Mesh>& meshes)
-	{
+	void processNode(aiNode* node, const aiScene* scene, std::vector<Mesh>& meshes) {
 		std::cout << " process node  ";
 		// Process each mesh located at the current node
 		for(GLuint i = 0; i < node->mNumMeshes; i++) {
