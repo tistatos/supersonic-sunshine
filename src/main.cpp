@@ -20,6 +20,7 @@
 #include <glm/gtc/type_ptr.hpp>
 #include <assimp/Importer.hpp>      // C++ importer interface
 #include <assimp/scene.h>           // Output data structure
+#include <png.hpp>
 
 //stl
 #include <iostream>
@@ -113,6 +114,8 @@ int main(int argc, char *argv[]) {
 
 
 	Shader shader("../shaders/simple.vert","../shaders/simple.frag");
+
+	png::image< png::rgb_pixel > image("../assets/stonewall.png");
 
 	float roughness = 0.5f;
 	AreaLight arealight(4.0f,4.0f, 4.0f);

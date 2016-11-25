@@ -60,6 +60,7 @@ set(ext_includes
 	${GLEW_INCLUDE_DIR}
 	${NANOGUI_INCLUDE_DIR}
 	${ASSIMP_INCLUDE_DIR}
+	${PNGPP_INCLUDE_DIR}
 )
 
 include_directories(
@@ -80,6 +81,7 @@ set(ALL_LIBS
 	${GLEW_LIBRARIES}
 	${NANOGUI_LIBRARIES}
 	${ASSIMP_LIBRARIES}
+	png
 )
 
 add_subdirectory(${PROJECT_CXX_DIR})
