@@ -1,6 +1,6 @@
 #include "SupersonicGui.h"
 
-SupersonicGUI::SupersonicGUI(GLFWwindow* window, std::function<void(float)> cb){
+SupersonicGUI::SupersonicGUI(GLFWwindow* window, std::function<void(float)> cb) {
 // Create a nanogui screen and pass the glfw pointer to initialize
 
 	mScreen = new Screen();
@@ -60,26 +60,26 @@ SupersonicGUI::SupersonicGUI(GLFWwindow* window, std::function<void(float)> cb){
 
 }
 
-void SupersonicGUI::addSlider(std::string label, float min, float max,const std::function<void(float)> &cb){
+void SupersonicGUI::addSlider(std::string label, float min, float max,const std::function<void(float)> &cb) {
 
-		Slider *slider = new Slider(gui->window());
-		slider->setValue(0.25f);
-		slider->setFixedWidth(60);
-		slider->setRange(std::pair<float,float>(min, max));
-		slider->setCallback(cb);
-		gui->addWidget(label, slider);
+	Slider *slider = new Slider(gui->window());
+	slider->setValue(0.25f);
+	slider->setFixedWidth(60);
+	slider->setRange(std::pair<float,float>(min, max));
+	slider->setCallback(cb);
+	gui->addWidget(label, slider);
 
-		TextBox *textBox = new TextBox(gui->window());
-		gui->addWidget("", textBox);
-		textBox->setFixedSize(Vector2i(60, 25));
-		textBox->setValue("0.25");
-		this->textBox = textBox;
+	TextBox *textBox = new TextBox(gui->window());
+	gui->addWidget("", textBox);
+	textBox->setFixedSize(Vector2i(60, 25));
+	textBox->setValue("0.25");
+	this->textBox = textBox;
 }
 
-void SupersonicGUI::refresh(){
+void SupersonicGUI::refresh() {
 	gui->refresh();
 }
-void SupersonicGUI::draw(){
+void SupersonicGUI::draw() {
 	mScreen->drawContents();
 	mScreen->drawWidgets();
 }

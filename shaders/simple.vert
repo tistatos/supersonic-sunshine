@@ -6,10 +6,7 @@ layout(location = 2) in vec2 texCoords;
 
 uniform mat4 m;
 
-layout (std140) uniform Matrices{
-    mat4 p;
-    mat4 v;
-};
+#include "cameramatrix.inc"
 
 out vec4 vNormal;
 out vec4 vPosition;
