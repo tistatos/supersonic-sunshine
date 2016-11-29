@@ -33,6 +33,13 @@ void Mesh::draw() {
 	glUniform3fv(glGetUniformLocation(*shader, "diffuseColor"), 1,glm::value_ptr(diffuseColor));
 	glUniform3fv(glGetUniformLocation(*shader, "specularColor"), 1,glm::value_ptr(specularColor));
 
+	if (textures.size() > 0){
+		glActiveTexture(GL_TEXTURE2);
+		glUniform1i(glGetUnifromLocation(*shader,"bumpMap"), 2);
+		glBindTexture(GL_TEXTURE_2D, this->textures[0]);
+	}
+	glActiveTexture(GL_TEXTURE0);
+
 	glBindVertexArray(this->vao);
 	glDrawElements(GL_TRIANGLES, this->indices.size(), GL_UNSIGNED_INT, 0);
 	glBindVertexArray(0);
