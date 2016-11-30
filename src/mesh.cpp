@@ -39,6 +39,11 @@ void Mesh::draw() {
 		glUniform1i(glGetUniformLocation(*shader,"bumpMap"), 2);
 		glBindTexture(GL_TEXTURE_2D, this->textures[0]);
 	}
+	if (textures.size() > 1){
+		glActiveTexture(GL_TEXTURE3);
+		glUniform1i(glGetUniformLocation(*shader,"roughnessMap"), 3);
+		glBindTexture(GL_TEXTURE_2D, this->textures[1]);
+	}
 	glActiveTexture(GL_TEXTURE0);
 
 	glBindVertexArray(this->vao);

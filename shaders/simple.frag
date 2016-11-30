@@ -14,6 +14,7 @@ uniform mat4 m;
 uniform sampler2D tex;
 uniform sampler2D ampTex;
 uniform sampler2D bumpMap;
+uniform sampler2D roughnessMap;
 
 uniform AreaLight arealight;
 
@@ -44,12 +45,13 @@ void main() {
 		T2 = vec3(0.0,0.0,1.0);
 
 		mat3 NMat = transpose(mat3(T1, T2, N));
-		N = NMat*normalize(0.2* texture(bumpMap, vTexCoords).rgb);
+		N = NMat*normalize(0.1* texture(bumpMap, vTexCoords).rgb);
 
 
 
 	float theta = acos(dot(V,N));
-	vec2 uv = vec2(roughness, theta/(0.5*PI));
+	float roughnessTex = texture(roughnessMap, vTexCoords).r;
+	vec2 uv = vec2(roughnessTex, theta/(0.5*PI));
 
 	const float LUT_SIZE  = 64.0;
 	const float LUT_SCALE = (LUT_SIZE - 1.0)/LUT_SIZE;
