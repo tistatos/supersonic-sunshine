@@ -15,6 +15,7 @@ Mesh::Mesh(std::vector<Vertex> vertices, std::vector<GLuint> indices) {
 
 	this->diffuseColor = glm::vec3(1.f,1.f,1.f);
 	this->specularColor = glm::vec3(1.f,1.f,1.f);
+
 }
 
 void Mesh::setModelMatrix(glm::mat4 matrix) {
@@ -35,7 +36,7 @@ void Mesh::draw() {
 
 	if (textures.size() > 0){
 		glActiveTexture(GL_TEXTURE2);
-		glUniform1i(glGetUnifromLocation(*shader,"bumpMap"), 2);
+		glUniform1i(glGetUniformLocation(*shader,"bumpMap"), 2);
 		glBindTexture(GL_TEXTURE_2D, this->textures[0]);
 	}
 	glActiveTexture(GL_TEXTURE0);

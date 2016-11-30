@@ -34,8 +34,19 @@ void main() {
 	points[0] =	(arealight.M * vec4(arealight.points[2],1.0)).xyz;
 	points[3] =	(arealight.M * vec4(arealight.points[3],1.0)).xyz;
 
-	vec3 N = normalize(vNormal.xyz);
+
 	vec3 V = normalize(eyePos - pos	);
+	vec3 N = normalize(vNormal.xyz);
+
+
+		vec3 T1, T2;
+		T1 = vec3(1.0,0.0,0.0);
+		T2 = vec3(0.0,0.0,1.0);
+
+		mat3 NMat = transpose(mat3(T1, T2, N));
+		N = NMat*normalize(0.2* texture(bumpMap, vTexCoords).rgb);
+
+
 
 	float theta = acos(dot(V,N));
 	vec2 uv = vec2(roughness, theta/(0.5*PI));

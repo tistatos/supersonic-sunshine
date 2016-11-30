@@ -6,6 +6,7 @@
 #include <assimp/postprocess.h>
 #include <iostream>
 
+#include <png.hpp>
 
 namespace Util{
 
@@ -52,10 +53,10 @@ namespace Util{
 		v1.normal = glm::vec3(0.0f,1.0f,0.0f);
 		v2.normal = glm::vec3(0.0f,1.0f,0.0f);
 		v3.normal = glm::vec3(0.0f,1.0f,0.0f);
-		v0.textureCoordinates = glm::vec2(1.0f,0.0f);
-		v1.textureCoordinates = glm::vec2(1.0f,1.0f);
+		v0.textureCoordinates = glm::vec2(10.0f,0.0f);
+		v1.textureCoordinates = glm::vec2(10.0f,10.0f);
 		v2.textureCoordinates = glm::vec2(0.0f,0.0f);
-		v2.textureCoordinates = glm::vec2(0.0f,1.0f);
+		v2.textureCoordinates = glm::vec2(0.0f,10.0f);
 
 		vertices.push_back(v0);
 		vertices.push_back(v1);
@@ -160,5 +161,35 @@ namespace Util{
 		}
 
 		return Mesh(vertices, indices);
+	}
+
+	GLuint createTexture(std::string pngfile){
+
+		png::image< png::rgb_pixel > image(pngfile);
+
+		GLuint texID;
+		glGenTextures(1, &texID);
+		glBindTexture(GL_TEXTURE_2D, texID);
+
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+		int width = image.get_width();
+		int height = image.get_height();
+
+		GLubyte tex_data[3*width*(3*height)];
+		for(int j=0; j<height; j++){
+			for (int i = 0;i<width; i++){
+				tex_data[3*i+(width*3*j)] = image[i][j].red;
+				tex_data[3*i+(width*3*j)+1] = image[i][j].green;
+				tex_data[3*i+(width*3*j)+2] = image[i][j].blue;
+
+
+			}
+		}
+
+		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB8, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, (void*)&tex_data);
+		return texID;
 	}
 }

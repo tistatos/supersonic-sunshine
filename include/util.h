@@ -19,4 +19,5 @@ namespace Util{
 
 	std::vector<Mesh> loadFromFile(std::string path);
 
+	GLuint createTexture(std::string pngfile);
 }

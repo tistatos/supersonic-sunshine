@@ -15,10 +15,12 @@ struct Vertex {
 		glm::vec2 textureCoordinates;
 };
 
+
 class Mesh {
 public:
 	std::vector<Vertex> vertices;
 	std::vector<GLuint> indices;
+	std::vector<GLuint> textures;
 	Shader* shader;
 
 
