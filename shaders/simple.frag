@@ -7,6 +7,8 @@
 in vec4 vPosition;
 in vec4 vNormal;
 in vec2 vTexCoords;
+in vec3 vTangent;
+in vec3 vBitangent;
 
 out vec4 finalColor;
 uniform mat4 m;
@@ -39,11 +41,7 @@ void main() {
 	vec3 N = normalize(vNormal.xyz);
 
 
-		vec3 T1, T2;
-		T1 = vec3(1.0,0.0,0.0);
-		T2 = vec3(0.0,0.0,1.0);
-
-		mat3 NMat = transpose(mat3(T1, T2, N));
+		mat3 NMat = transpose(mat3(vTangent, vBitangent, N));
 		N = NMat*normalize(0.2* texture(bumpMap, vTexCoords).rgb);
 
 
