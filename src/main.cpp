@@ -116,8 +116,7 @@ int main(int argc, char *argv[]) {
 	Shader shader("../shaders/simple.vert","../shaders/simple.frag");
 
 	GLuint tex = Util::createTexture("../assets/normalmap.png");
-
-	png::image< png::rgb_pixel > image("../assets/stonewall.png");
+	GLuint roughtex = Util::createTexture("../assets/roughness.png");
 
 	float roughness = 0.5f;
 	AreaLight arealight(16.0f,4.0f, 4.0f);
@@ -133,6 +132,7 @@ int main(int argc, char *argv[]) {
 	Mesh plane = Util::createPlaneMesh(40.f, 40.f);
 	plane.shader = &shader;
 	plane.textures.push_back(tex);
+	plane.textures.push_back(roughtex);
 	LTC_t maps = loadLTCTextures();
 
 	glClearColor(0.f,0.f,0.3f,1.0);
