@@ -44,7 +44,7 @@ void main() {
 	T1 = vec3(1.0,0.0,0.0);
 	T2 = vec3(0.0,0.0,1.0);
 
-	float uvRepeat = 0.1;
+	float uvRepeat = 0.4;
 
 	mat3 NMat = transpose(mat3(T1, T2, N));
 	N = NMat*(2*texture(bumpMap, vTexCoords*uvRepeat).rgb-1);

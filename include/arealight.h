@@ -25,11 +25,12 @@ public:
 
 	void use(Shader& shader);
 	void draw();
+	void setMatrix(glm::mat4 m);
 
 private:
-Shader* lightShader;
-	AreaLightProperties	mProperties;
 	Mesh* mLightMesh;
+	AreaLightProperties	mProperties;
+	Shader* lightShader;
 };
 
 #endif

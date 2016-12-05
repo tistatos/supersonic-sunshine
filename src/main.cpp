@@ -143,11 +143,9 @@ int main(int argc, char *argv[]) {
 	glm::vec3 up(0.0f, 1.0f, 0.0f);
 	glm::vec3 right(1.0f, 0.0f, 0.0f);
 
-	glm::mat4 meshMat(1.0f);
-
 	glm::mat4 lightMat(1.0f);
 	lightMat = glm::rotate(lightMat, (float)(M_PI/2), right);
-	lightMat = glm::translate(lightMat, glm::vec3(0.0f, -3.0f, -2.5f));
+	lightMat = glm::translate(lightMat, glm::vec3(0.0f, -5.0f, -5.5f));
 
 	glfwSetInputMode(mWindow, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 
@@ -205,8 +203,11 @@ int main(int argc, char *argv[]) {
 
 		camera->update();
 
-		plane.setModelMatrix(meshMat);
 		plane.setRoughness(roughness);
+
+		glm::vec3 fwd(0.0f, 0.0f, 1.0f);
+		lightMat = glm::rotate(lightMat, (float)(M_PI/4)*delta, fwd);
+		arealight.setMatrix(lightMat);
 
 		bindTextures(&maps);
 
