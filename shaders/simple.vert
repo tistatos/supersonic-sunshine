@@ -11,10 +11,13 @@ uniform mat4 m;
 out vec4 vNormal;
 out vec4 vPosition;
 out vec2 vTexCoords;
-
+out vec3 vTangent;
+out vec3 vBitangent;
 void main() {
 	vNormal = transpose(inverse(m)) * vec4(normal, 1.0);
 	vTexCoords = texCoords;
+	vTangent = (transpose(inverse(m)) * vec4(1.0,0.0,0.0,0.0)).xyz;
+	vBitangent = (transpose(inverse(m)) * vec4(1.0,0.0,1.0,0.0)).xyz;
 	vPosition = (m * vec4(vertex,1.0));
 	gl_Position = p * v * m * vec4(vertex, 1.0);
 }
