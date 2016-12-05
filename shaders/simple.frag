@@ -40,17 +40,19 @@ void main() {
 	vec3 N = normalize(vNormal.xyz);
 
 
-		vec3 T1, T2;
-		T1 = vec3(1.0,0.0,0.0);
-		T2 = vec3(0.0,0.0,1.0);
+	vec3 T1, T2;
+	T1 = vec3(1.0,0.0,0.0);
+	T2 = vec3(0.0,0.0,1.0);
 
-		mat3 NMat = transpose(mat3(T1, T2, N));
-		N = NMat*normalize(0.1* texture(bumpMap, vTexCoords).rgb);
+	float uvRepeat = 0.1;
 
-
+	mat3 NMat = transpose(mat3(T1, T2, N));
+	N = NMat*(2*texture(bumpMap, vTexCoords*uvRepeat).rgb-1);
+	N = vNormal.xyz*0.8 + N*0.2;
 
 	float theta = acos(dot(V,N));
-	float roughnessTex = texture(roughnessMap, vTexCoords).r;
+	float roughnessTex = roughness * texture(roughnessMap, vTexCoords*uvRepeat).r;
+	roughnessTex = clamp(roughnessTex, 0.0, 1.0);
 	vec2 uv = vec2(roughnessTex, theta/(0.5*PI));
 
 	const float LUT_SIZE  = 64.0;
@@ -72,7 +74,7 @@ void main() {
 
 	vec3 diffuse = arealightDiffuse(N,V,pos, mat3(1.0), points);
 
-	vec3 color = vec3(arealight.intensity)*(specularColor * arealight.color * spec + diffuseColor *
+	vec3 color = vec3(arealight.intensity/2)*(specularColor * arealight.color * spec + diffuseColor *
 			arealight.color  * diffuse);
 
 	color /=(2.0*PI);

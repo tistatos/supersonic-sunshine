@@ -12,7 +12,7 @@ SupersonicGUI::SupersonicGUI(GLFWwindow* window, std::function<void(float)> cb) 
 	gui->addVariable("FPS ", fps)->setEditable(false);
 	gui->addVariable("ms ", ms)->setEditable(false);
 
-	this->addSlider("roughness", 0.01f, 1.f, cb);
+	this->addSlider("roughness", 0.01f, 2.f, cb);
 	mScreen->setVisible(true);
 	mScreen->performLayout();
 

@@ -115,8 +115,8 @@ int main(int argc, char *argv[]) {
 
 	Shader shader("../shaders/simple.vert","../shaders/simple.frag");
 
-	GLuint tex = Util::createTexture("../assets/normalmap.png");
-	GLuint roughtex = Util::createTexture("../assets/roughness.png");
+	GLuint tex = Util::createTexture("../assets/tile_normalmap.png");
+	GLuint roughtex = Util::createTexture("../assets/tileroughness.png");
 
 	float roughness = 0.5f;
 	AreaLight arealight(16.0f,4.0f, 4.0f);
@@ -159,6 +159,8 @@ int main(int argc, char *argv[]) {
 		delta = time - lastFrame;
 
 		GLfloat cameraSpeed = 0.1f;
+		if(glfwGetKey(mWindow, GLFW_KEY_LEFT_SHIFT))
+				cameraSpeed += 1.0f;
 		if(glfwGetKey(mWindow, GLFW_KEY_ESCAPE))
 			glfwSetWindowShouldClose(mWindow, GL_TRUE);
 		if(glfwGetKey(mWindow,GLFW_KEY_W))
