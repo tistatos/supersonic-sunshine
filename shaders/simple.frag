@@ -17,6 +17,7 @@ uniform sampler2D tex;
 uniform sampler2D ampTex;
 uniform sampler2D bumpMap;
 uniform sampler2D roughnessMap;
+uniform sampler2D albedoMap;
 
 uniform AreaLight arealight;
 
@@ -72,8 +73,10 @@ void main() {
 
 	vec3 diffuse = arealightDiffuse(N,V,pos, mat3(1.0), points);
 
-	vec3 color = vec3(arealight.intensity/2)*(specularColor * arealight.color * spec + diffuseColor *
-			arealight.color  * diffuse);
+	vec3 albedo = texture(albedoMap, uv).rgb;
+	vec3 color = vec3(arealight.intensity/2)*(
+			specularColor * arealight.color * spec +
+			albedo * arealight.color * diffuse);
 
 	color /=(2.0*PI);
 

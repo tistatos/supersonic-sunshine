@@ -117,6 +117,7 @@ int main(int argc, char *argv[]) {
 
 	GLuint tex = Util::createTexture("../assets/tile_normalmap.png");
 	GLuint roughtex = Util::createTexture("../assets/tileroughness.png");
+	GLuint albedo = Util::createTexture("../assets/tilealbedo.png");
 
 	float roughness = 0.5f;
 	AreaLight arealight(16.0f,4.0f, 4.0f);
@@ -133,6 +134,7 @@ int main(int argc, char *argv[]) {
 	plane.shader = &shader;
 	plane.textures.push_back(tex);
 	plane.textures.push_back(roughtex);
+	plane.textures.push_back(albedo);
 	LTC_t maps = loadLTCTextures();
 
 	glClearColor(0.f,0.f,0.3f,1.0);
@@ -151,7 +153,7 @@ int main(int argc, char *argv[]) {
 
 	float delta = 0.0f;
 	bool usingMenu = false;
-	bool mousePressed = false;
+	bool pressed = false;
 	while (!glfwWindowShouldClose(mWindow)) {
 		time = glfwGetTime();
 		delta = time - lastFrame;
@@ -173,8 +175,8 @@ int main(int argc, char *argv[]) {
 			shader.reload();
 
 		if(glfwGetMouseButton(mWindow, GLFW_MOUSE_BUTTON_RIGHT)) {
-			if(!mousePressed) {
-				mousePressed = true;
+			if(!pressed) {
+				pressed = true;
 				if(usingMenu) {
 					glfwSetInputMode(mWindow, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 				}
@@ -185,7 +187,7 @@ int main(int argc, char *argv[]) {
 			}
 		}
 		else {
-			mousePressed = false;
+			pressed = false;
 		}
 
 		double x,y;
@@ -205,9 +207,11 @@ int main(int argc, char *argv[]) {
 
 		plane.setRoughness(roughness);
 
-		glm::vec3 fwd(0.0f, 0.0f, 1.0f);
-		lightMat = glm::rotate(lightMat, (float)(M_PI/4)*delta, fwd);
-		arealight.setMatrix(lightMat);
+    if(!glfwGetKey(mWindow,GLFW_KEY_SPACE)) {
+			glm::vec3 fwd(0.0f, 0.0f, 1.0f);
+			lightMat = glm::rotate(lightMat, (float)(M_PI/4)*delta, fwd);
+			arealight.setMatrix(lightMat);
+		}
 
 		bindTextures(&maps);
 
