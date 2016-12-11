@@ -38,7 +38,7 @@ void main() {
 
 	float uvRepeat = 1.0;
 
-	mat3 NMat = transpose(mat3(vTangent, vBitangent, N));
+	mat3 NMat = (mat3(vTangent,vBitangent, N));
 	vec3 normalTex = texture(normalMap, vTexCoords).rgb;
 	normalTex.y = 1- normalTex.y;
 
@@ -46,8 +46,8 @@ void main() {
 	N = vNormal.xyz*0.0 + N*1.0;
 
 	float theta = acos(dot(V,N));
-	float roughnessTex = roughness * (texture(roughnessMap, vTexCoords*uvRepeat).r);
-	/*roughnessTex = roughness;*/
+	float roughnessTex = (1-texture(roughnessMap, vTexCoords*uvRepeat).r);
+	roughnessTex = clamp(roughness*roughnessTex, 0.0, 1.0);
 	vec2 uv = vec2(roughnessTex, theta/(0.5*PI));
 
 	const float LUT_SIZE  = 64.0;
@@ -86,5 +86,5 @@ void main() {
 	}
 	color /=(2.0*PI);
 
-	finalColor = vec4(color ,1.0);
+	finalColor = vec4(color, 1.0);
 }

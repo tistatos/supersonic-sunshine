@@ -101,7 +101,7 @@ namespace Util{
 	std::vector<Mesh*> loadFromFile(std::string path) {
 		std::vector<Mesh*> meshes;
 		Assimp::Importer importer;
-		const aiScene* scene = importer.ReadFile(path, aiProcess_Triangulate );
+		const aiScene* scene = importer.ReadFile(path, aiProcess_Triangulate | aiProcess_FlipUVs | aiProcess_JoinIdenticalVertices | aiProcess_CalcTangentSpace );
 		if(!scene || scene->mFlags == AI_SCENE_FLAGS_INCOMPLETE || !scene->mRootNode) {// if is Not Zero {
 			std::cout << "ERROR::ASSIMP:: " << importer.GetErrorString() <<std::endl;
 			return std::vector<Mesh*>();
@@ -149,12 +149,27 @@ namespace Util{
 				vector.y = mesh->mNormals[i].y;
 				vector.z = mesh->mNormals[i].z;
 				vertex.normal = vector;
+
+				vector.x = mesh->mTangents[i].x;
+				vector.y = mesh->mTangents[i].y;
+				vector.z = mesh->mTangents[i].z;
+				vertex.tangent = vector;
+
+				vector.x = mesh->mBitangents[i].x;
+				vector.y = mesh->mBitangents[i].y;
+				vector.z = mesh->mBitangents[i].z;
+				vertex.bitangent = vector;
 			}
 			//texture coordinates
 			// Wieeerd stuff with uv coords going on.
 			// xy are swapped and x has to be mirrored
+			//vertex.textureCoordinates = glm::vec2(
+					//1.0 -mesh->mTextureCoords[0][i].y,
+					//mesh->mTextureCoords[0][i].x);
+			//FIXED: use assimp flag
+
 			vertex.textureCoordinates = glm::vec2(
-					1.0 -mesh->mTextureCoords[0][i].y,
+					mesh->mTextureCoords[0][i].y,
 					mesh->mTextureCoords[0][i].x);
 			vertices.push_back(vertex);
 		}

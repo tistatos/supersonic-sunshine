@@ -235,10 +235,7 @@ int main(int argc, char *argv[]) {
 
 		camera->update();
 
-		//plane.setRoughness(roughness);
-		//bunny.setRoughness(roughness);
-
-    if(supergui->shouldSpin) {
+		if(supergui->shouldSpin) {
 			glm::vec3 fwd(0.0f, 0.0f, 1.0f);
 			lightMat = glm::rotate(lightMat, (float)(M_PI/4)*delta, fwd);
 			arealight.setMatrix(lightMat);
