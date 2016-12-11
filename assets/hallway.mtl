@@ -1,0 +1,128 @@
+newmtl BaseSG1
+illum 4
+Kd 0.00 0.00 0.00
+Ka 0.00 0.00 0.00
+Tf 1.00 1.00 1.00
+map_Kd BaseCorridor_Base_Color.png
+bump BaseCorridor_Normal_DirectX.png -bm 1
+Ni 1.00
+Ks 0.00 0.00 0.00
+map_Ks BaseCorridor_Roughness.png
+Ns 7.61
+newmtl BridgeLightSG
+illum 4
+Kd 0.00 0.00 0.00
+Ka 0.00 0.00 0.00
+Tf 1.00 1.00 1.00
+map_Kd BridgeLightMat_Base_Color.png
+Ni 1.00
+Ks 0.00 0.00 0.00
+map_Ks BridgeLightMat_Roughness.png
+Ns 7.61
+newmtl BridgeSupportSG
+illum 4
+Kd 0.00 0.00 0.00
+Ka 0.00 0.00 0.00
+Tf 1.00 1.00 1.00
+map_Kd BridgeSupportMat_Base_Color.png
+bump BridgeSupportMat_Roughness.png -bm 1
+Ni 1.00
+Ks 0.00 0.00 0.00
+map_Ks BridgeSupportMat_Roughness.png
+Ns 7.61
+newmtl BridgewallSG
+illum 4
+Kd 0.00 0.00 0.00
+Ka 0.00 0.00 0.00
+Tf 1.00 1.00 1.00
+map_Kd BridgeWallMat_Base_Color.png
+bump BridgeWallMat_Normal_DirectX.png -bm 1
+Ni 1.00
+Ks 0.00 0.00 0.00
+map_Ks BridgeWallMat_Roughness.png
+Ns 7.61
+newmtl Door_LSG1
+illum 4
+Kd 0.00 0.00 0.00
+Ka 0.00 0.00 0.00
+Tf 1.00 1.00 1.00
+map_Kd Door_L_Base_Color.png
+bump Door_L_Normal_DirectX.png -bm 1
+Ni 1.00
+Ks 0.00 0.00 0.00
+map_Ks Door_L_Roughness.png
+Ns 7.61
+newmtl Door_RSG1
+illum 4
+Kd 0.00 0.00 0.00
+Ka 0.00 0.00 0.00
+Tf 1.00 1.00 1.00
+map_Kd Dooe_R_Base_Color.png
+bump Dooe_R_Normal_DirectX.png -bm 1
+Ni 1.00
+Ks 0.00 0.00 0.00
+map_Ks Dooe_R_Roughness.png
+Ns 7.61
+newmtl PipesFBXASC046007SG1
+illum 4
+Kd 0.00 0.00 0.00
+Ka 0.00 0.00 0.00
+Tf 1.00 1.00 1.00
+map_Kd Pipes_Base_Color.png
+bump Pipes_Normal_DirectX.png -bm 1
+Ni 1.00
+Ks 0.25 0.25 0.25
+Ns 7.61
+newmtl R6_DoorWaySG
+illum 4
+Kd 0.00 0.00 0.00
+Ka 0.00 0.00 0.00
+Tf 1.00 1.00 1.00
+map_Kd CorridorDW_Base_Color.png
+bump BaseCorridorDW_Normal_DirectX.png -bm 1
+Ni 1.00
+Ks 0.00 0.00 0.00
+map_Ks BaseCorridorDW_Roughness.png
+Ns 7.61
+newmtl SideFencesSG1
+illum 4
+Kd 0.00 0.00 0.00
+Ka 0.00 0.00 0.00
+Tf 1.00 1.00 1.00
+map_Kd SideFence_Base_Color.png
+bump SideFence_Normal_DirectX.png -bm 1
+Ni 1.00
+Ks 0.00 0.00 0.00
+map_Ks SideFence_Roughness.png
+Ns 7.61
+newmtl WalkBridgeSG1
+illum 4
+Kd 0.00 0.00 0.00
+Ka 0.00 0.00 0.00
+Tf 1.00 1.00 1.00
+map_Kd Walkplate_D.png
+Ni 1.00
+Ks 0.00 0.00 0.00
+map_Ks Walkplate_S.png
+Ns 7.61
+newmtl WalkwaySG
+illum 4
+Kd 0.00 0.00 0.00
+Ka 0.00 0.00 0.00
+Tf 1.00 1.00 1.00
+map_Kd WalkWayMat_Base_Color.png
+bump WalkWayMat_Roughness.png -bm 1
+Ni 1.00
+Ks 0.00 0.00 0.00
+map_Ks WalkWayMat_Roughness.png
+Ns 7.61
+newmtl WindowsSG
+illum 4
+Kd 0.00 0.00 0.00
+Ka 0.00 0.00 0.00
+Tf 1.00 1.00 1.00
+map_Kd WindowsMat_Base_Color.png
+Ni 1.00
+Ks 0.00 0.00 0.00
+map_Ks WindowsMat_Roughness.png
+Ns 7.61
