@@ -117,10 +117,10 @@ int main(int argc, char *argv[]) {
 
 	GLuint normal = Util::createTexture("../assets/tile_normalmap.png");
 	GLuint rough = Util::createTexture("../assets/tileroughness.png");
-	GLuint diffuse = Util::createTexture("../assets/tilealbedo.png");
+	//GLuint diffuse = Util::createTexture("../assets/tilealbedo.png");
 
 	float roughness = 0.5f;
-	AreaLight arealight(4.0f,4.0f, 4.0f);
+
 
 
 	SupersonicGUI* supergui = new SupersonicGUI(mWindow, [&supergui, &roughness](float val) {
@@ -132,7 +132,7 @@ int main(int argc, char *argv[]) {
 
 	Mesh plane = Util::createPlaneMesh(40.f, 40.f);
 	plane.shader = &shader;
-	plane.textures.diffuse = diffuse;
+	//plane.textures.diffuse = diffuse;
 	plane.textures.normal = normal;
 	plane.textures.roughness = rough;
 	LTC_t maps = loadLTCTextures();
@@ -141,6 +141,7 @@ int main(int argc, char *argv[]) {
 	glClearColor(0.f,0.f,0.3f,1.0);
 	glClear(GL_COLOR_BUFFER_BIT| GL_DEPTH_BUFFER_BIT);
 	glfwSwapBuffers(mWindow);
+
 
 	std::vector<Mesh*> meshes = Util::loadFromFile("../assets/hallway.obj");
 	for (Mesh* mesh : meshes) {
@@ -154,9 +155,29 @@ int main(int argc, char *argv[]) {
 	glm::vec3 up(0.0f, 1.0f, 0.0f);
 	glm::vec3 right(1.0f, 0.0f, 0.0f);
 
+
+	AreaLight arealight(4.0f,4.0f, 4.0f);
+	AreaLight arealight2(30.0f,1.5f, 7.0f);
+	AreaLight arealight3(30.0f,1.5f, 7.0f);
+
+	arealight2.setColor(glm::vec3(1.0,0.5,0.0));
+	arealight3.setColor(glm::vec3(0.0,1.0,1.0));
+
 	glm::mat4 lightMat(1.0f);
 	lightMat = glm::rotate(lightMat, (float)(M_PI/2), right);
 	lightMat = glm::translate(lightMat, glm::vec3(0.0f, -5.0f, -5.5f));
+
+	glm::mat4 lightMat2(1.0f);	//
+	lightMat2 = glm::translate(lightMat2, glm::vec3(-7.5f, 8.f, 15.f));
+	lightMat2 = glm::rotate(lightMat2, (float)(M_PI/2), up);
+	lightMat2 = glm::rotate(lightMat2, (float)(M_PI/2), right);
+	arealight2.setMatrix(lightMat2);
+
+	glm::mat4 lightMat3(1.0f);
+	lightMat3 = glm::translate(lightMat3, glm::vec3(7.5f, 8.0f, 15.f));
+	lightMat3 = glm::rotate(lightMat3, (float)(M_PI/2), up);
+	lightMat3 = glm::rotate(lightMat3, (float)(-M_PI/2), right);
+	arealight3.setMatrix(lightMat3);
 
 	glfwSetInputMode(mWindow, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 
@@ -227,10 +248,14 @@ int main(int argc, char *argv[]) {
 
 		for (Mesh* mesh : meshes) {
 			mesh->setRoughness(roughness);
-			arealight.use(*mesh->shader);
+			arealight.use(*mesh->shader, 0);
+			arealight2.use(*mesh->shader, 1);
+			arealight3.use(*mesh->shader, 2);
 			mesh->draw();
 		}
 		arealight.draw();
+		arealight2.draw();
+		arealight3.draw();
 
 
 		supergui->draw();

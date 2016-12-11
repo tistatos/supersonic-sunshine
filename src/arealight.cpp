@@ -19,13 +19,13 @@ AreaLight::AreaLight(float x, float y, float intensity){
 	mLightMesh->shader = lightShader;
 }
 
-void AreaLight::use(Shader &shader){
+void AreaLight::use(Shader &shader, int n){
 
 	glUseProgram(shader);
-	GLint pointsLoc = glGetUniformLocation(shader, "arealight.points");
-	GLint modelLoc = glGetUniformLocation(shader, "arealight.M");
-	GLint intensityLoc = glGetUniformLocation(shader, "arealight.intensity");
-	GLint colorLoc = glGetUniformLocation(shader, "arealight.color");
+	GLint pointsLoc = glGetUniformLocation(shader, (std::string("arealights[")+std::to_string(n)+std::string("].points")).c_str());
+	GLint modelLoc = glGetUniformLocation(shader, (std::string("arealights[")+std::to_string(n)+std::string("].M")).c_str());
+	GLint intensityLoc = glGetUniformLocation(shader, (std::string("arealights[")+std::to_string(n)+std::string("].intensity")).c_str());
+	GLint colorLoc = glGetUniformLocation(shader, (std::string("arealights[")+std::to_string(n)+std::string("].color")).c_str());
 
 	glUniform3fv(pointsLoc, 4, glm::value_ptr(mProperties.points[0]));
 	glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(mProperties.model));
@@ -44,6 +44,9 @@ void AreaLight::draw(){
 	glUseProgram(0);
 }
 
+	void AreaLight::setColor(glm::vec3 color){
+		mProperties.color = color;
+	}
 void AreaLight::setMatrix(glm::mat4 m) {
 	mLightMesh->setModelMatrix(m);
 	mProperties.model = m;

@@ -23,9 +23,10 @@ class AreaLight {
 public:
 	AreaLight(float x, float y, float intensity);
 
-	void use(Shader& shader);
+	void use(Shader& shader, int n);
 	void draw();
 	void setMatrix(glm::mat4 m);
+	void setColor(glm::vec3 color);
 
 private:
 	Mesh* mLightMesh;

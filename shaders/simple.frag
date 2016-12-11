@@ -20,7 +20,7 @@ uniform sampler2D diffuseMap;
 uniform sampler2D normalMap;
 uniform sampler2D roughnessMap;
 
-uniform AreaLight arealight;
+uniform AreaLight arealights[5];
 
 uniform float roughness;
 
@@ -32,11 +32,6 @@ void main() {
 	vec3 pos = vPosition.xyz;
 	vec3 points[4];
 
-	//area light points
-	points[1] =	(arealight.M * vec4(arealight.points[1],1.0)).xyz;
-	points[0] = (arealight.M * vec4(arealight.points[2],1.0)).xyz;
-	points[2] =	(arealight.M * vec4(arealight.points[0],1.0)).xyz;
-	points[3] =	(arealight.M * vec4(arealight.points[3],1.0)).xyz;
 
 	vec3 V = normalize(eyePos - pos);
 	vec3 N = normalize(vNormal.xyz);
@@ -68,17 +63,27 @@ void main() {
 			vec3(0.0, ltc.z, 0.0),
 			vec3(ltc.w, 0.0, ltc.x) );
 
-	vec3 spec = arealightDiffuse(N,V,pos, mInv, points);
-	float specAmplitude = texture(ltcAmplitude, uv).r;
-	spec *= specAmplitude;
+	int nLights = 3;
+	vec3 color = vec3(0.0);
+	for(int i = 0; i < nLights; i++){
+		AreaLight arealight = arealights[i];
+		//area light points
+		points[1] =	(arealight.M * vec4(arealight.points[1],1.0)).xyz;
+		points[0] = (arealight.M * vec4(arealight.points[2],1.0)).xyz;
+		points[2] =	(arealight.M * vec4(arealight.points[0],1.0)).xyz;
+		points[3] =	(arealight.M * vec4(arealight.points[3],1.0)).xyz;
 
-	vec3 diffuse = arealightDiffuse(N,V,pos, mat3(1.0), points);
+		vec3 spec = arealightDiffuse(N,V,pos, mInv, points);
+		float specAmplitude = texture(ltcAmplitude, uv).r;
+		spec *= specAmplitude;
 
-	vec3 albedo = texture(diffuseMap, vTexCoords).rgb;
-	vec3 color = arealight.intensity *
-		(	arealight.color * spec +
-			albedo * diffuse * arealight.color );
+		vec3 diffuse = arealightDiffuse(N,V,pos, mat3(1.0), points);
 
+		vec3 albedo = texture(diffuseMap, vTexCoords).rgb;
+		color += arealight.intensity *
+			(	arealight.color * spec +
+				albedo * diffuse * arealight.color );
+	}
 	color /=(2.0*PI);
 
 	finalColor = vec4(color ,1.0);
