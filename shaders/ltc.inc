@@ -100,15 +100,14 @@ void ClipQuadToHorizon(inout vec3 L[5], out int n) {
 		L[4] = L[0];
 }
 
-vec3 arealightDiffuse(vec3 N, vec3 V, vec3 P, mat3 mInv, vec3 points[4]) {
+vec3 arealightDiffuse(vec3 N, vec3 V, vec3 P, mat3 Minv, vec3 points[4]) {
 	// construct orthonormal basis around N
-	mat3 Minv = mInv;
 
 	vec3 T1, T2;
 	T1 = normalize(V - N*dot(V, N));
 	T2 = cross(N, T1);
 
-	Minv = Minv * transpose(mat3(T1, T2, N));
+	Minv *= transpose(mat3(T1, T2, N));
 
 	vec3 L[5];
 	L[0] = Minv * (points[0] - P);
@@ -141,7 +140,7 @@ vec3 arealightDiffuse(vec3 N, vec3 V, vec3 P, mat3 mInv, vec3 points[4]) {
 		sum += IntegrateEdge(L[4], L[0]);
 
 	sum = max(sum, 0.0);
-	sum = max(sum, 0.0);
+	//sum = abs(sum);
 
 	return vec3(sum);
 }

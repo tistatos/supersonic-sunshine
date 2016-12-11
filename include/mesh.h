@@ -15,14 +15,19 @@ struct Vertex {
 		glm::vec2 textureCoordinates;
 };
 
+struct Textures {
+	GLuint diffuse;
+	GLuint normal;
+	GLuint roughness;
+};
+
 
 class Mesh {
 public:
 	std::vector<Vertex> vertices;
 	std::vector<GLuint> indices;
-	std::vector<GLuint> textures;
+	Textures textures;
 	Shader* shader;
-
 
 	Mesh(std::vector<Vertex> vertices, std::vector<GLuint> indices);
 	void setModelMatrix(glm::mat4 matrix);

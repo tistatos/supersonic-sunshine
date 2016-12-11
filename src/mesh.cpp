@@ -12,10 +12,6 @@ Mesh::Mesh(std::vector<Vertex> vertices, std::vector<GLuint> indices) {
 	this->indices = indices;
 	this->setupMesh();
 	this->model = glm::mat4(1.0f);
-
-	this->diffuseColor = glm::vec3(1.f,1.f,1.f);
-	this->specularColor = glm::vec3(1.f,1.f,1.f);
-
 }
 
 void Mesh::setModelMatrix(glm::mat4 matrix) {
@@ -24,31 +20,28 @@ void Mesh::setModelMatrix(glm::mat4 matrix) {
 
 void Mesh::draw() {
 	glUseProgram(*this->shader);
-	glUniform1i(glGetUniformLocation(*this->shader, "tex"), 0 );
-	glUniform1i(glGetUniformLocation(*this->shader, "ampTex"), 1);
+	glUniform1i(glGetUniformLocation(*this->shader, "ltcTexture"), 0 );
+	glUniform1i(glGetUniformLocation(*this->shader, "ltcAmplitude"), 1);
 
 	glUniform1f(glGetUniformLocation(*this->shader, "roughness"), roughness );
 	glUniformMatrix4fv(glGetUniformLocation(*this->shader, "m"),
 			1, GL_FALSE, glm::value_ptr(this->model));
 
-	glUniform3fv(glGetUniformLocation(*shader, "diffuseColor"), 1,glm::value_ptr(diffuseColor));
-	glUniform3fv(glGetUniformLocation(*shader, "specularColor"), 1,glm::value_ptr(specularColor));
-
-	if (textures.size() > 0){
+	if (textures.normal > 0){
 		glActiveTexture(GL_TEXTURE2);
-		glUniform1i(glGetUniformLocation(*shader,"bumpMap"), 2);
-		glBindTexture(GL_TEXTURE_2D, this->textures[0]);
+		glUniform1i(glGetUniformLocation(*shader,"normalMap"), 2);
+		glBindTexture(GL_TEXTURE_2D, textures.normal);
 	}
-	if (textures.size() > 1){
+	if (textures.roughness > 0){
 		glActiveTexture(GL_TEXTURE3);
 		glUniform1i(glGetUniformLocation(*shader,"roughnessMap"), 3);
-		glBindTexture(GL_TEXTURE_2D, this->textures[1]);
+		glBindTexture(GL_TEXTURE_2D, textures.roughness);
 	}
 
-	if (textures.size() > 2){
+	if (textures.diffuse > 0){
 		glActiveTexture(GL_TEXTURE4);
-		glUniform1i(glGetUniformLocation(*shader,"albedoMap"), 4);
-		glBindTexture(GL_TEXTURE_2D, this->textures[2]);
+		glUniform1i(glGetUniformLocation(*shader,"diffuseMap"), 4);
+		glBindTexture(GL_TEXTURE_2D, textures.diffuse);
 	}
 	glActiveTexture(GL_TEXTURE0);
 

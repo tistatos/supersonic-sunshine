@@ -8,6 +8,11 @@
 
 using namespace nanogui;
 
+struct sliderWithTextBox {
+	Slider slider;
+	TextBox* textBox;
+};
+
 class SupersonicGUI{
 public:
 	SupersonicGUI(GLFWwindow* window, std::function<void(float)> cb);
@@ -22,6 +27,7 @@ public:
 	void refresh();
 
 	TextBox* textBox;
+	bool shouldSpin = true;
 private:
 	int fps;
 	float ms;

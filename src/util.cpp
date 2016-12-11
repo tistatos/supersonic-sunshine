@@ -53,10 +53,10 @@ namespace Util{
 		v1.normal = glm::vec3(0.0f,1.0f,0.0f);
 		v2.normal = glm::vec3(0.0f,1.0f,0.0f);
 		v3.normal = glm::vec3(0.0f,1.0f,0.0f);
-		v0.textureCoordinates = glm::vec2(10.0f,0.0f);
-		v1.textureCoordinates = glm::vec2(10.0f,10.0f);
+		v0.textureCoordinates = glm::vec2(1.0f,0.0f);
+		v1.textureCoordinates = glm::vec2(1.0f,1.0f);
 		v2.textureCoordinates = glm::vec2(0.0f,0.0f);
-		v2.textureCoordinates = glm::vec2(0.0f,10.0f);
+		v2.textureCoordinates = glm::vec2(0.0f,1.0f);
 
 		vertices.push_back(v0);
 		vertices.push_back(v1);
@@ -98,13 +98,13 @@ namespace Util{
 		return new Mesh(vertices, indices);
 	}
 
-	std::vector<Mesh> loadFromFile(std::string path) {
-		std::vector<Mesh> meshes;
+	std::vector<Mesh*> loadFromFile(std::string path) {
+		std::vector<Mesh*> meshes;
 		Assimp::Importer importer;
-		const aiScene* scene = importer.ReadFile(path, aiProcess_Triangulate | aiProcess_GenSmoothNormals );
+		const aiScene* scene = importer.ReadFile(path, aiProcess_Triangulate );
 		if(!scene || scene->mFlags == AI_SCENE_FLAGS_INCOMPLETE || !scene->mRootNode) {// if is Not Zero {
 			std::cout << "ERROR::ASSIMP:: " << importer.GetErrorString() <<std::endl;
-			return std::vector<Mesh>();
+			return std::vector<Mesh*>();
 		}
 
 		// Process ASSIMP's root node recursively
@@ -112,13 +112,15 @@ namespace Util{
 
 		return meshes;
 	}
-	void processNode(aiNode* node, const aiScene* scene, std::vector<Mesh>& meshes) {
+
+	void processNode(aiNode* node, const aiScene* scene, std::vector<Mesh*>& meshes) {
 		std::cout << " process node  ";
 		// Process each mesh located at the current node
 		for(GLuint i = 0; i < node->mNumMeshes; i++) {
 			// The node object only contains indices to index the actual objects in the scene.
 			// The scene contains all the data, node is just to keep stuff organized (like relations between nodes).
 			aiMesh* mesh = scene->mMeshes[node->mMeshes[i]];
+
 			meshes.push_back(processMesh(mesh, scene));
 		}
 		// After we've processed all of the meshes (if any) we then recursively process each of the children nodes
@@ -127,7 +129,7 @@ namespace Util{
 		}
 	}
 
-	Mesh processMesh(aiMesh* mesh, const aiScene* scene) {
+	Mesh* processMesh(aiMesh* mesh, const aiScene* scene) {
 		// Data to fill
 		std::vector<Vertex> vertices;
 		std::vector<GLuint> indices;
@@ -148,7 +150,12 @@ namespace Util{
 				vector.z = mesh->mNormals[i].z;
 				vertex.normal = vector;
 			}
-
+			//texture coordinates
+			// Wieeerd stuff with uv coords going on.
+			// xy are swapped and x has to be mirrored
+			vertex.textureCoordinates = glm::vec2(
+					1.0 -mesh->mTextureCoords[0][i].y,
+					mesh->mTextureCoords[0][i].x);
 			vertices.push_back(vertex);
 		}
 
@@ -160,7 +167,29 @@ namespace Util{
 				indices.push_back(face.mIndices[j]);
 		}
 
-		return Mesh(vertices, indices);
+		aiMaterial* mtl = scene->mMaterials[mesh->mMaterialIndex];
+
+		Textures meshTextures;
+		aiString path;
+
+		if(mtl->GetTextureCount(aiTextureType_DIFFUSE) > 0) {
+			mtl->GetTexture(aiTextureType_DIFFUSE, 0, &path);
+			meshTextures.diffuse = createTexture(path.C_Str());
+		}
+
+		if(mtl->GetTextureCount(aiTextureType_HEIGHT) > 0) {
+			mtl->GetTexture(aiTextureType_HEIGHT, 0, &path);
+			meshTextures.normal = createTexture(path.C_Str());
+		}
+
+		if(mtl->GetTextureCount(aiTextureType_SPECULAR) > 0) {
+			mtl->GetTexture(aiTextureType_SPECULAR, 0, &path);
+			meshTextures.roughness = createTexture(path.C_Str());
+		}
+
+		Mesh* m = new Mesh(vertices, indices);
+		m->textures = meshTextures;
+		return m;
 	}
 
 	GLuint createTexture(std::string pngfile){
@@ -178,18 +207,17 @@ namespace Util{
 		int width = image.get_width();
 		int height = image.get_height();
 
-		GLubyte tex_data[3*width*(3*height)];
-		for(int j=0; j<height; j++){
-			for (int i = 0;i<width; i++){
-				tex_data[3*i+(width*3*j)] = image[i][j].red;
-				tex_data[3*i+(width*3*j)+1] = image[i][j].green;
-				tex_data[3*i+(width*3*j)+2] = image[i][j].blue;
-
-
+		GLubyte* tex_data = new GLubyte[3*width*height];
+		for(int j = 0; j < height; j++){
+			for (int i = 0;i < width; i++){
+				tex_data[(i+width*j)*3] = image[i][j].red;
+				tex_data[(i+width*j)*3+1] = image[i][j].green;
+				tex_data[(i+width*j)*3+2] = image[i][j].blue;
 			}
 		}
 
-		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB8, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, (void*)&tex_data);
+		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB8, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, (void*)tex_data);
+		delete[] tex_data;
 		return texID;
 	}
 }

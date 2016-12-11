@@ -115,12 +115,12 @@ int main(int argc, char *argv[]) {
 
 	Shader shader("../shaders/simple.vert","../shaders/simple.frag");
 
-	GLuint tex = Util::createTexture("../assets/tile_normalmap.png");
-	GLuint roughtex = Util::createTexture("../assets/tileroughness.png");
-	GLuint albedo = Util::createTexture("../assets/tilealbedo.png");
+	GLuint normal = Util::createTexture("../assets/tile_normalmap.png");
+	GLuint rough = Util::createTexture("../assets/tileroughness.png");
+	GLuint diffuse = Util::createTexture("../assets/tilealbedo.png");
 
 	float roughness = 0.5f;
-	AreaLight arealight(16.0f,4.0f, 4.0f);
+	AreaLight arealight(4.0f,4.0f, 4.0f);
 
 
 	SupersonicGUI* supergui = new SupersonicGUI(mWindow, [&supergui, &roughness](float val) {
@@ -132,15 +132,24 @@ int main(int argc, char *argv[]) {
 
 	Mesh plane = Util::createPlaneMesh(40.f, 40.f);
 	plane.shader = &shader;
-	plane.textures.push_back(tex);
-	plane.textures.push_back(roughtex);
-	plane.textures.push_back(albedo);
+	plane.textures.diffuse = diffuse;
+	plane.textures.normal = normal;
+	plane.textures.roughness = rough;
 	LTC_t maps = loadLTCTextures();
 
+	/** Nice screen while loading */
 	glClearColor(0.f,0.f,0.3f,1.0);
+	glClear(GL_COLOR_BUFFER_BIT| GL_DEPTH_BUFFER_BIT);
+	glfwSwapBuffers(mWindow);
 
-	std::vector<Mesh*> meshes;
-	meshes.push_back(&plane);
+	std::vector<Mesh*> meshes = Util::loadFromFile("../assets/hallway.obj");
+	for (Mesh* mesh : meshes) {
+		mesh->shader = &shader;
+	}
+
+	//std::vector<Mesh*> meshes;
+	//meshes.push_back(&plane);
+
 
 	glm::vec3 up(0.0f, 1.0f, 0.0f);
 	glm::vec3 right(1.0f, 0.0f, 0.0f);
@@ -205,9 +214,10 @@ int main(int argc, char *argv[]) {
 
 		camera->update();
 
-		plane.setRoughness(roughness);
+		//plane.setRoughness(roughness);
+		//bunny.setRoughness(roughness);
 
-    if(!glfwGetKey(mWindow,GLFW_KEY_SPACE)) {
+    if(supergui->shouldSpin) {
 			glm::vec3 fwd(0.0f, 0.0f, 1.0f);
 			lightMat = glm::rotate(lightMat, (float)(M_PI/4)*delta, fwd);
 			arealight.setMatrix(lightMat);
@@ -216,6 +226,7 @@ int main(int argc, char *argv[]) {
 		bindTextures(&maps);
 
 		for (Mesh* mesh : meshes) {
+			mesh->setRoughness(roughness);
 			arealight.use(*mesh->shader);
 			mesh->draw();
 		}

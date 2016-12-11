@@ -11,6 +11,8 @@ SupersonicGUI::SupersonicGUI(GLFWwindow* window, std::function<void(float)> cb) 
 
 	gui->addVariable("FPS ", fps)->setEditable(false);
 	gui->addVariable("ms ", ms)->setEditable(false);
+	gui->addVariable("Spinning ", shouldSpin);
+
 
 	this->addSlider("roughness", 0.01f, 2.f, cb);
 	mScreen->setVisible(true);
