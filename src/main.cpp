@@ -47,6 +47,10 @@ Camera *camera;
 double oldX;
 double oldY;
 
+Util::FBOstruct* fb1;
+Util::FBOstruct* fb2;
+Util::FBOstruct* fb3;
+
 void mouseMove(float xdelta, float ydelta) {
 	float rotatespeed = 0.005f;
 	camera->mFacing = glm::rotateY(camera->mFacing, -xdelta*rotatespeed);
@@ -57,6 +61,12 @@ void mouseMove(float xdelta, float ydelta) {
 void windowResizedCallback(GLFWwindow* window, int width, int height) {
 	float aspect = (float)width/height;
 	camera->setProjectionMatrix(glm::perspective((float)M_PI/3.0f, aspect, 0.001f, 1000.0f));
+	delete fb1;
+	delete fb2;
+	delete fb3;
+	fb1 = Util::initFBO(width, height, 0);
+	fb2 = Util::initFBO(width, height, 0);
+	fb3 = Util::initFBO(width, height, 0);
 }
 
 /* Inits a GLFW Window with OpenGL 3.3. Make sure glfwInit has been called */
@@ -80,7 +90,7 @@ GLFWwindow* createWindow() {
 	}
 
 	glfwMakeContextCurrent(window);
-	glfwSwapInterval(VSYNC);
+	//glfwSwapInterval(VSYNC);
 
 	glfwSetWindowSizeCallback(window, windowResizedCallback);
 	return window;
@@ -114,6 +124,9 @@ int main(int argc, char *argv[]) {
 
 
 	Shader shader("../shaders/simple.vert","../shaders/simple.frag");
+	Shader trunk("../shaders/quad.vert","../shaders/trunk.frag");
+	Shader lpt("../shaders/quad.vert","../shaders/lpt.frag");
+	Shader plain("../shaders/quad.vert","../shaders/plain.frag");
 
 	GLuint normal = Util::createTexture("../assets/tile_normalmap.png");
 	GLuint rough = Util::createTexture("../assets/tileroughness.png");
@@ -168,13 +181,13 @@ int main(int argc, char *argv[]) {
 	lightMat = glm::translate(lightMat, glm::vec3(0.0f, -5.0f, -5.5f));
 
 	glm::mat4 lightMat2(1.0f);	//
-	lightMat2 = glm::translate(lightMat2, glm::vec3(-7.5f, 8.f, 15.f));
+	lightMat2 = glm::translate(lightMat2, glm::vec3(-20.0f, 9.f, -6.f));
 	lightMat2 = glm::rotate(lightMat2, (float)(M_PI/2), up);
 	lightMat2 = glm::rotate(lightMat2, (float)(M_PI/2), right);
 	arealight2.setMatrix(lightMat2);
 
 	glm::mat4 lightMat3(1.0f);
-	lightMat3 = glm::translate(lightMat3, glm::vec3(7.5f, 8.0f, 15.f));
+	lightMat3 = glm::translate(lightMat3, glm::vec3(20.0f, 9.0f, -6.f));
 	lightMat3 = glm::rotate(lightMat3, (float)(M_PI/2), up);
 	lightMat3 = glm::rotate(lightMat3, (float)(-M_PI/2), right);
 	arealight3.setMatrix(lightMat3);
@@ -184,6 +197,12 @@ int main(int argc, char *argv[]) {
 	float delta = 0.0f;
 	bool usingMenu = false;
 	bool pressed = false;
+
+	Mesh quad = Util::createQuad();
+	fb1 = Util::initFBO(width, height, 0);
+	fb2 = Util::initFBO(width, height, 0);
+	fb3 = Util::initFBO(width, height, 0);
+
 	while (!glfwWindowShouldClose(mWindow)) {
 		time = glfwGetTime();
 		delta = time - lastFrame;
@@ -201,8 +220,12 @@ int main(int argc, char *argv[]) {
 			camera->mPosition -= glm::normalize(glm::cross(camera->mFacing, glm::vec3(0.f,1.0f,0.0f))) * cameraSpeed;
     if(glfwGetKey(mWindow,GLFW_KEY_D))
 			camera->mPosition += glm::normalize(glm::cross(camera->mFacing, glm::vec3(0.f,1.0f,0.0f))) * cameraSpeed;
-    if(glfwGetKey(mWindow,GLFW_KEY_F5))
+    if(glfwGetKey(mWindow,GLFW_KEY_F5)) {
 			shader.reload();
+			lpt.reload();
+			trunk.reload();
+			plain.reload();
+		}
 
 		if(glfwGetMouseButton(mWindow, GLFW_MOUSE_BUTTON_RIGHT)) {
 			if(!pressed) {
@@ -228,10 +251,10 @@ int main(int argc, char *argv[]) {
 		oldX = x;
 		oldY = y;
 
+		Util::useFBO(fb1, NULL, NULL);
+		glClear(GL_COLOR_BUFFER_BIT| GL_DEPTH_BUFFER_BIT);
 		glEnable(GL_DEPTH_TEST);
 		glEnable(GL_CULL_FACE);
-
-		glClear(GL_COLOR_BUFFER_BIT| GL_DEPTH_BUFFER_BIT);
 
 		camera->update();
 
@@ -254,6 +277,76 @@ int main(int argc, char *argv[]) {
 		arealight2.draw();
 		arealight3.draw();
 
+		if(supergui->bloom) {
+			Util::useFBO(fb2, fb1, NULL);
+			glClear(GL_COLOR_BUFFER_BIT| GL_DEPTH_BUFFER_BIT);
+			glDisable(GL_DEPTH_TEST);
+			glDisable(GL_CULL_FACE);
+
+			glUseProgram(trunk);
+			glUniform1i(glGetUniformLocation(trunk, "texUnit"), 6 );
+			glBindVertexArray(quad.vao);
+			glDrawElements(GL_TRIANGLES, quad.indices.size(), GL_UNSIGNED_INT, 0);
+			glBindVertexArray(0);
+
+			Util::useFBO(fb3, fb2, NULL);
+			glClear(GL_COLOR_BUFFER_BIT| GL_DEPTH_BUFFER_BIT);
+			glDisable(GL_DEPTH_TEST);
+			glDisable(GL_CULL_FACE);
+
+			glUseProgram(lpt);
+			glUniform1i(glGetUniformLocation(lpt, "texUnit"), 6 );
+			glUniform1i(glGetUniformLocation(lpt, "texSize"), fb2->width);
+			glBindVertexArray(quad.vao);
+			glDrawElements(GL_TRIANGLES, quad.indices.size(), GL_UNSIGNED_INT, 0);
+			glBindVertexArray(0);
+			Util::useFBO(fb2, fb3, NULL);
+			glClear(GL_COLOR_BUFFER_BIT| GL_DEPTH_BUFFER_BIT);
+			glDisable(GL_DEPTH_TEST);
+			glDisable(GL_CULL_FACE);
+
+			glUseProgram(lpt);
+			glUniform1i(glGetUniformLocation(lpt, "texUnit"), 6 );
+			glUniform1i(glGetUniformLocation(lpt, "texSize"), fb3->width);
+			glBindVertexArray(quad.vao);
+			glDrawElements(GL_TRIANGLES, quad.indices.size(), GL_UNSIGNED_INT, 0);
+			glBindVertexArray(0);
+			Util::useFBO(fb3, fb2, NULL);
+			glClear(GL_COLOR_BUFFER_BIT| GL_DEPTH_BUFFER_BIT);
+			glDisable(GL_DEPTH_TEST);
+			glDisable(GL_CULL_FACE);
+
+			glUseProgram(lpt);
+			glUniform1i(glGetUniformLocation(lpt, "texUnit"), 6 );
+			glUniform1i(glGetUniformLocation(lpt, "texSize"), fb2->width);
+			glBindVertexArray(quad.vao);
+			glDrawElements(GL_TRIANGLES, quad.indices.size(), GL_UNSIGNED_INT, 0);
+			glBindVertexArray(0);
+
+			Util::useFBO(NULL, fb1, fb3);
+			glClear(GL_COLOR_BUFFER_BIT| GL_DEPTH_BUFFER_BIT);
+			glDisable(GL_DEPTH_TEST);
+			glDisable(GL_CULL_FACE);
+
+			glUseProgram(plain);
+			glUniform1i(glGetUniformLocation(plain, "texUnit"), 6 );
+			glUniform1i(glGetUniformLocation(plain, "secondTexUnit"), 7 );
+			glBindVertexArray(quad.vao);
+			glDrawElements(GL_TRIANGLES, quad.indices.size(), GL_UNSIGNED_INT, 0);
+			glBindVertexArray(0);
+		}
+		else {
+			Util::useFBO(NULL, fb1, NULL);
+			glClear(GL_COLOR_BUFFER_BIT| GL_DEPTH_BUFFER_BIT);
+			glDisable(GL_DEPTH_TEST);
+			glDisable(GL_CULL_FACE);
+
+			glUseProgram(plain);
+			glUniform1i(glGetUniformLocation(plain, "texUnit"), 6 );
+			glBindVertexArray(quad.vao);
+			glDrawElements(GL_TRIANGLES, quad.indices.size(), GL_UNSIGNED_INT, 0);
+			glBindVertexArray(0);
+		}
 
 		supergui->draw();
 
