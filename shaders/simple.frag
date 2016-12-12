@@ -28,6 +28,8 @@ uniform float roughness;
 
 void main() {
 	vec3 eyePos = (inverse(v) * vec4(vec3(0), 1.0)).xyz;
+	eyePos = inverse(v)[3].xyz;
+	eyePos = cameraposition;
 	vec3 pos = vPosition.xyz;
 	vec3 points[4];
 

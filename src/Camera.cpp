@@ -13,6 +13,7 @@ Camera::Camera(int width, int height)
 	mHeight = height;
 	mFacing = glm::vec3(0.0f,0.f,-1.0);
 	mPosition = glm::vec3(0,4.5,28.f);
+	matrices.position = mPosition;
 	float aspect = (float)width/height;
 	matrices.projection = glm::perspective((float)M_PI/3.0f, aspect, 0.001f, 1000.0f);
 	matrices.view = glm::lookAt(
@@ -35,6 +36,7 @@ void Camera::update(){
 			mPosition + mFacing,
 			glm::vec3(0.0f, 1.0f,0.0f)
 	);
+	matrices.position = mPosition;
 
 	glBindBuffer(GL_UNIFORM_BUFFER, uboMatrices);
 	GLvoid* p = glMapBuffer(GL_UNIFORM_BUFFER, GL_WRITE_ONLY);

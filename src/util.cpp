@@ -279,7 +279,7 @@ namespace Util{
 		glGenFramebuffers(1, &fbo->fb); // frame buffer id
 		glBindFramebuffer(GL_FRAMEBUFFER, fbo->fb);
 		glGenTextures(1, &fbo->texid);
-		fprintf(stderr, "%i \n",fbo->texid);
+		//fprintf(stderr, "%i \n",fbo->texid);
 		glBindTexture(GL_TEXTURE_2D, fbo->texid);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
@@ -303,7 +303,7 @@ namespace Util{
 			glRenderbufferStorage( GL_RENDERBUFFER, GL_DEPTH_COMPONENT24, fbo->width, fbo->height );
 			glFramebufferRenderbuffer( GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, fbo->rb );
 
-		fprintf(stderr, "Framebuffer object %d\n", fbo->fb);
+		//fprintf(stderr, "Framebuffer object %d\n", fbo->fb);
 		glBindFramebuffer(GL_FRAMEBUFFER, 0);
 		return fbo;
 	}
