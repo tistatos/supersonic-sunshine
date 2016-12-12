@@ -41,4 +41,6 @@ void Camera::update(){
 	assert(p != NULL);
 	memcpy(p, &this->matrices, sizeof(camera_matrices));
 	glUnmapBuffer(GL_UNIFORM_BUFFER);
+	glBindBufferRange(GL_UNIFORM_BUFFER, 0, uboMatrices, 0, sizeof(camera_matrices));
+	glBindBuffer(GL_UNIFORM_BUFFER, 0);
 }
