@@ -28,6 +28,7 @@ public:
 
 	TextBox* textBox;
 	bool shouldSpin = true;
+	bool bloom = false;
 private:
 	int fps;
 	float ms;

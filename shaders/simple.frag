@@ -26,7 +26,6 @@ uniform float roughness;
 
 #define PI 3.14159265359
 
-
 void main() {
 	vec3 eyePos = (inverse(v) * vec4(vec3(0), 1.0)).xyz;
 	vec3 pos = vPosition.xyz;
