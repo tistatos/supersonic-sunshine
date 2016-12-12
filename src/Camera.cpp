@@ -35,12 +35,10 @@ void Camera::update(){
 			mPosition + mFacing,
 			glm::vec3(0.0f, 1.0f,0.0f)
 	);
+
 	glBindBuffer(GL_UNIFORM_BUFFER, uboMatrices);
 	GLvoid* p = glMapBuffer(GL_UNIFORM_BUFFER, GL_WRITE_ONLY);
 	assert(p != NULL);
 	memcpy(p, &this->matrices, sizeof(camera_matrices));
 	glUnmapBuffer(GL_UNIFORM_BUFFER);
-
-	glBindBufferRange(GL_UNIFORM_BUFFER, 0, uboMatrices, 0, sizeof(camera_matrices));
-	glBindBuffer(GL_UNIFORM_BUFFER, 0);
 }

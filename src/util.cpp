@@ -34,6 +34,38 @@ namespace Util{
 		return Mesh(vertices, indices);
 	}
 
+	Mesh createQuad() {
+		std::vector<Vertex> vertices;
+		std::vector<GLuint> indices;
+
+		indices.push_back(0);
+		indices.push_back(1);
+		indices.push_back(2);
+		indices.push_back(0);
+		indices.push_back(2);
+		indices.push_back(3);
+		Vertex v0,v1,v2,v3;
+		v0.position = glm::vec3(-1.0f,-1.0f,0.0f);
+		v1.position = glm::vec3(-1.0f,1.0f,0.0f);
+		v2.position = glm::vec3(1.0f,1.0f,0.0f);
+		v3.position = glm::vec3(1.0f,-1.0f,0.0f);
+		v0.normal = glm::vec3(0.0f,0.0f,1.0f);
+		v1.normal = glm::vec3(0.0f,0.0f,1.0f);
+		v2.normal = glm::vec3(0.0f,0.0f,1.0f);
+		v3.normal = glm::vec3(0.0f,0.0f,1.0f);
+		v0.textureCoordinates = glm::vec2(0.0f,0.0f);
+		v1.textureCoordinates = glm::vec2(0.0f,1.0f);
+		v2.textureCoordinates = glm::vec2(1.0f,1.0f);
+		v3.textureCoordinates = glm::vec2(1.0f,0.0f);
+
+		vertices.push_back(v0);
+		vertices.push_back(v1);
+		vertices.push_back(v2);
+		vertices.push_back(v3);
+
+		return Mesh(vertices, indices);
+	}
+
 	Mesh createPlaneMesh(float x, float y) {
 		std::vector<Vertex> vertices;
 		std::vector<GLuint> indices;
@@ -234,5 +266,96 @@ namespace Util{
 		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB8, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, (void*)tex_data);
 		delete[] tex_data;
 		return texID;
+	}
+
+	FBOstruct *initFBO(int width, int height, int int_method)
+	{
+		FBOstruct *fbo = new FBOstruct();
+
+		fbo->width = width;
+		fbo->height = height;
+
+		// create objects
+		glGenFramebuffers(1, &fbo->fb); // frame buffer id
+		glBindFramebuffer(GL_FRAMEBUFFER, fbo->fb);
+		glGenTextures(1, &fbo->texid);
+		fprintf(stderr, "%i \n",fbo->texid);
+		glBindTexture(GL_TEXTURE_2D, fbo->texid);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+		if (int_method == 0)
+		{
+			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+		}
+		else
+		{
+			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+		}
+		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA32F, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, NULL);
+		glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, fbo->texid, 0);
+
+		// Renderbuffer
+		// initialize depth renderbuffer
+			glGenRenderbuffers(1, &fbo->rb);
+			glBindRenderbuffer(GL_RENDERBUFFER, fbo->rb);
+			glRenderbufferStorage( GL_RENDERBUFFER, GL_DEPTH_COMPONENT24, fbo->width, fbo->height );
+			glFramebufferRenderbuffer( GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, fbo->rb );
+
+		fprintf(stderr, "Framebuffer object %d\n", fbo->fb);
+		glBindFramebuffer(GL_FRAMEBUFFER, 0);
+		return fbo;
+	}
+
+	static int lastw = 0;
+	static int lasth = 0;
+
+	void useFBO(FBOstruct *out, FBOstruct *in1, FBOstruct *in2)
+	{
+		GLint curfbo;
+
+	// This was supposed to catch changes in viewport size and update lastw/lasth.
+	// It worked for me in the past, but now it causes problems to I have to
+	// fall back to manual updating.
+		glGetIntegerv(GL_FRAMEBUFFER_BINDING, &curfbo);
+		if (curfbo == 0)
+		{
+			GLint viewport[4] = {0,0,0,0};
+			GLint w, h;
+			glGetIntegerv(GL_VIEWPORT, viewport);
+			w = viewport[2] - viewport[0];
+			h = viewport[3] - viewport[1];
+			if ((w > 0) && (h > 0) && (w < 65536) && (h < 65536)) // I don't believe in 64k pixel wide frame buffers for quite some time
+			{
+				lastw = viewport[2] - viewport[0];
+				lasth = viewport[3] - viewport[1];
+			}
+		}
+
+		if (out != 0L)
+			glViewport(0, 0, out->width, out->height);
+		else
+			glViewport(0, 0, lastw, lasth);
+
+		if (out != 0L)
+		{
+			glBindFramebuffer(GL_FRAMEBUFFER, out->fb);
+			glViewport(0, 0, out->width, out->height);
+		}
+		else
+			glBindFramebuffer(GL_FRAMEBUFFER, 0);
+
+		glActiveTexture(GL_TEXTURE7);
+		if (in2 != 0L)
+			glBindTexture(GL_TEXTURE_2D, in2->texid);
+		else
+			glBindTexture(GL_TEXTURE_2D, 0);
+
+		glActiveTexture(GL_TEXTURE6);
+		if (in1 != 0L)
+			glBindTexture(GL_TEXTURE_2D, in1->texid);
+		else
+			glBindTexture(GL_TEXTURE_2D, 0);
 	}
 }
